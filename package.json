@@ -1,0 +1,23 @@
+{
+  "name": "web-engineering-2",
+  "version": "1.0.0",
+  "description": "WE 2 Uebung by Jonas Spaller",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonasspaller/web-engineering-2.git"
+  },
+  "author": "Jonas Spaller",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jonasspaller/web-engineering-2/issues"
+  },
+  "homepage": "https://github.com/jonasspaller/web-engineering-2#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "mongoose": "^6.2.10"
+  }
+}
