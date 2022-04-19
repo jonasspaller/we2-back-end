@@ -9,7 +9,13 @@ const userRoute = require('./endpoints/user/UserRoute');
 app.use('/',testRoutes);
 app.use('/user', userRoute);
 
-database.initDB()
+database.initDB((err, db) => {
+	if(db){
+		console.log("database connection established");
+	} else {
+		console.log("database connection failed");
+	}
+});
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

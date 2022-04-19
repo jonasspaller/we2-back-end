@@ -7,12 +7,13 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		unique: true
 	},
-	email: String,
-	password: String,
-	image: String,
+	userName: String,
 	isAdministrator: {
 		type: Boolean,
 		default: false
-	}
+	},
+	password: String
 }, { timestamps: true }
 );
+
+module.exports = UserSchema;

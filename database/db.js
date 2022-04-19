@@ -16,7 +16,7 @@ function initDB(callback) {
 		}
 	} else {
 
-		mongoose.connect(connectionString, { useNewUrlParser: true, useUnfifiedTopology: true, userCreateIndex: true });
+		mongoose.connect(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
 		_db = mongoose.connection;
 
 		_db.on('error', console.error.bind(console, "connection error: "));
@@ -27,4 +27,13 @@ function initDB(callback) {
 
 	}
 
+}
+
+function close() {
+	mongoose.connection.close();
+}
+
+module.exports = {
+	initDB,
+	close
 }
