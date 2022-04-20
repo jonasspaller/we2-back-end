@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
-const UserSchema = require('./UserModel');
-var User = mongoose.model('User', UserSchema);
+const UserModel = require('./UserModel');
+var User = mongoose.model('User', UserModel);
 
 function getUsers(callback) {
 	User.find((err, users) => {

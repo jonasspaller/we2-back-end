@@ -6,9 +6,6 @@ const port = 8080;
 const testRoutes = require('./endpoints/test/TestRoutes');
 const userRoute = require('./endpoints/user/UserRoute');
 
-app.use('/',testRoutes);
-app.use('/user', userRoute);
-
 database.initDB((err, db) => {
 	if(db){
 		console.log("database connection established");
@@ -16,6 +13,9 @@ database.initDB((err, db) => {
 		console.log("database connection failed");
 	}
 });
+
+app.use('/',testRoutes);
+app.use('/user', userRoute);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
