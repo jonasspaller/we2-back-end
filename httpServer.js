@@ -4,7 +4,8 @@ const app = express();
 const port = 8080;
 
 const testRoutes = require('./endpoints/test/TestRoutes');
-const userRoute = require('./endpoints/user/UserRoute');
+const userRoutes = require('./endpoints/user/UserRoutes');
+const publicUsersRoute = require('./endpoints/user/publicUsersRoute');
 
 database.initDB((err, db) => {
 	if(db){
@@ -15,7 +16,8 @@ database.initDB((err, db) => {
 });
 
 app.use('/',testRoutes);
-app.use('/user', userRoute);
+app.use('/user', userRoutes);
+app.use('/publicUsers', publicUsersRoute);
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

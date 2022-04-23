@@ -1,3 +1,4 @@
+var mongoose = require('mongoose');
 const UserModel = require('./UserModel');
 
 var User = mongoose.model('User', UserModel);
@@ -14,6 +15,21 @@ function getUsers(callback) {
 	});
 }
 
+function saveUser(reqBody, callback) {
+
+	var newUser = new User(reqBody);
+
+	newUser.save()
+		.then(() => {
+			callback(null);
+		})
+		.catch(() => {
+			callback("err");
+		});
+
+}
+
 module.exports = {
-	getUsers
+	getUsers,
+	saveUser
 }
