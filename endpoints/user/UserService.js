@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
 const UserModel = require('./UserModel');
+
 var User = mongoose.model('User', UserModel);
 
 function getUsers(callback) {
