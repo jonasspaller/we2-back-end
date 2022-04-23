@@ -8,6 +8,6 @@
 			"useNewUrlParser": true,
 			"useUnifiedTopology": true
 		},
-		"connectionString": "mongodb://localhost/TestDB"
+		"connectionString": "mongodb://127.0.0.1:27017/TestDB"
 	}
 }

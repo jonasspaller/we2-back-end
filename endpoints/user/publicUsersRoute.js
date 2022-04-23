@@ -6,6 +6,7 @@ var userService = require("./UserService");
 
 var jsonParser = bodyParser.json();
 
+// GET requests
 router.get('/', (req, res) => {
 	userService.getUsers((err, result) => {
 		console.log("Result: " + result);
@@ -17,6 +18,17 @@ router.get('/', (req, res) => {
 	});
 });
 
+router.get('/:searchedUser', jsonParser, (req, res) => {
+	userService.getOneUser(req.params.searchedUser, (err, result) => {
+		if(result){
+			res.json(result);
+		} else {
+			res.send(err);
+		}
+	});
+});
+
+// POST requests
 router.post('/', jsonParser, (req, res) => {
 
 	userService.saveUser(req.body, (err) => {
@@ -29,6 +41,21 @@ router.post('/', jsonParser, (req, res) => {
 
 	});
 
+});
+
+// PUT requests
+router.put('/:userToUpdate', jsonParser, (req, res) => {
+
+	let userToUpdate = req.params.userToUpdate;
+
+	userService.updateUser(userToUpdate, req.body, (err) => {
+		if(!err){
+			res.send("User " + userToUpdate + " sucessfully updated");
+		} else {
+			res.send("An error occured while trying to update " + userToUpdate);
+			console.log(err);
+		}
+	});
 });
 
 module.exports = router;

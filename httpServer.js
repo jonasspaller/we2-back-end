@@ -8,11 +8,7 @@ const userRoutes = require('./endpoints/user/UserRoutes');
 const publicUsersRoute = require('./endpoints/user/publicUsersRoute');
 
 database.initDB((err, db) => {
-	if(db){
-		console.log("database connection established");
-	} else {
-		console.log("database connection failed");
-	}
+	if(db) console.log("database connection established");
 });
 
 app.use('/',testRoutes);

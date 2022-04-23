@@ -15,21 +15,57 @@ function getUsers(callback) {
 	});
 }
 
+function getOneUser(username, callback){
+
+	User.findOne({userID: username}, (err, obj) => {
+		if(obj){
+			callback(null, obj);
+		} else {
+			callback("User " + username + " konnte nicht gefunden werden", null);
+		}
+	});
+
+}
+
 function saveUser(reqBody, callback) {
 
 	var newUser = new User(reqBody);
 
-	newUser.save()
-		.then(() => {
-			callback(null);
-		})
-		.catch(() => {
-			callback("err");
-		});
+	// check if a user with this username already exists
+	var existingUser = getOneUser(newUser.userID, (err, obj) => {
 
+		if(obj){
+			callback("User already exists")
+		} else {
+
+			newUser.save()
+				.then(() => {
+					callback(null);
+				})
+				.catch(() => {
+					callback("err");
+				});
+
+		}
+
+	});
+
+}
+
+function updateUser(username, updateBody, callback){
+	console.log("user to update: " + username);
+	User.findOneAndUpdate({userID: username}, updateBody, (err, obj) => {
+		if(obj){
+			callback();
+		} else {
+			callback(err);
+		}
+	});
 }
 
 module.exports = {
 	getUsers,
-	saveUser
+	saveUser,
+	getOneUser,
+	updateUser
 }
