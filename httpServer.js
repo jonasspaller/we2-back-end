@@ -9,11 +9,9 @@ database.initDB((err, db) => {
 })
 
 // define source files for routes
-const userRoutes = require('./endpoints/user/UserRoutes')
 const publicUsersRoute = require('./endpoints/user/publicUsersRoute')
 
 // define which route uses which source file
-app.use('/user', userRoutes)
 app.use('/publicUsers', publicUsersRoute)
 
 // start webserver
