@@ -18,5 +18,5 @@ app.use('/publicUsers', publicUsersRoute)
 
 // start webserver
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+	console.log(`Example app listening on port ${port}`)
 })
