@@ -1,6 +1,7 @@
 var mongoose = require('mongoose')
-const UserModel = require('./UserModel')
-var User = mongoose.model('User', UserModel)
+const { update } = require('./UserModel')
+const User = require('./UserModel')
+//var User = mongoose.model('User', UserModel)
 
 // get all users from database
 function getUsers(callback) {
@@ -8,18 +9,18 @@ function getUsers(callback) {
 		if(result){
 			callback(null, result)
 		} else {
-			callback(err, null)
+			callback({"Error": "An error occured while trying to get users: " + err})
 		}
 	})
 }
 
 // get one specific user from database
-function getOneUser(username, callback){
-	User.findOne({userID: username}, (err, result) => {
+function getUserByID(userID, callback){
+	User.findOne({userID: userID}, (err, result) => {
 		if(result){
 			callback(null, result)
 		} else {
-			callback(err, null)
+			callback({"Error": "user " + userID + " was not found"})
 		}
 	})
 }
@@ -30,16 +31,16 @@ function saveUser(reqBody, callback) {
 	let newUserID = newUser.userID
 
 	// check if a user with this userID already exists
-	getOneUser(newUserID, (err, result) => {
+	getUserByID(newUserID, (err, result) => {
 		if(result){
-			callback("User " + newUserID + " already exists", null)
+			callback("User " + newUserID + " already exists")
 		} else {
 			newUser.save()
 			.then((savedUser) => {
 				callback(null, savedUser)
 			})
-			.catch((saveError) => {
-				callback(saveError, null)
+			.catch(() => {
+				callback({"Error": "An error occured while trying to save user " + req.body.userID + ": " + err})
 			})
 		}
 	})
@@ -47,29 +48,52 @@ function saveUser(reqBody, callback) {
 
 // update user in the database
 function updateUser(username, updateBody, callback){
-	User.findOneAndUpdate({userID: username}, updateBody, (err, result) => {
-		if(result){
-			callback(null, result)
-		} else {
-			callback(err, null)
+
+	// get user document from db
+	getUserByID(username, (err, result) => {
+		if(!result){
+			callback({"Error": "The user " + username + " does not exist"})
+		} else if(err){
+			callback({"Error": "An error occured in getOneUser(): " + err})
+		} else if(result){
+			// user found, time to update
+
+			Object.assign(result, updateBody)
+
+			result.save()
+			.then((savedUser) => {
+				callback(null, savedUser)
+			})
+			.catch(() => {
+				callback({"Error": "An error occured while trying to save user " + username + ": " + err})
+			})
 		}
 	})
 }
 
 // delete user from database
 function deleteUser(username, callback){
-	User.deleteOne({userID: username})
-	.then(() => {
-		callback(null, username)
-	}).catch((err) => {
-		callback(err, null)
+	// get user document from db
+	getUserByID(username, (err, result) => {
+		if(!result){
+			callback({"Error": "The user " + username + " does not exist"})
+		} else if(err){
+			callback({"Error": "An error occured in getOneUser(): " + err})
+		} else if(result){
+			User.deleteOne({userID: username})
+			.then(() => {
+				callback(null, username)
+			}).catch((err) => {
+				callback({"Error": "An error occured while trying to delete " + username + ": " + err})
+			})
+		}
 	})
 }
 
 module.exports = {
 	getUsers,
 	saveUser,
-	getOneUser,
+	getUserByID,
 	updateUser,
 	deleteUser
 }

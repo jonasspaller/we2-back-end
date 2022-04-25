@@ -9,21 +9,21 @@ router.get('/', (req, res) => {
 	userService.getUsers((err, result) => {
 		if(result){
 			res.send(Object.values(result))
-		} else {
+		} else if(err){
 			res.status(500)
-			res.send("An error occured while trying to get users: " + err)
+			res.json(err)
 		}
 	})
 })
 
 router.get('/:username', (req, res) => {
 	let username = req.params.username
-	userService.getOneUser(username, (err, result) => {
+	userService.getUserByID(username, (err, result) => {
 		if(result){
 			res.json(result)
-		} else {
-			res.status(500)
-			res.send("An error occured while trying to get user " + username + ": " + err)
+		} else if(err){
+			res.status(404)
+			res.json(err)
 		}
 	})
 })
@@ -32,10 +32,11 @@ router.get('/:username', (req, res) => {
 router.post('/', jsonParser, (req, res) => {
 	userService.saveUser(req.body, (err, result) => {
 		if(result){
-			res.send("Erfolgreich gespeichert")
-		} else {
-			res.status(500)
-			res.send("An error occured while trying to save user " + req.body.userID + ": " + err)
+			res.status(201)
+			res.json(result)
+		} else if(err){
+			res.status(400)
+			res.json(err)
 		}
 	})
 })
@@ -45,10 +46,10 @@ router.put('/:username', jsonParser, (req, res) => {
 	let username = req.params.username
 	userService.updateUser(username, req.body, (err, result) => {
 		if(result){
-			res.send("User " + username + " sucessfully updated")
-		} else {
-			res.status(500)
-			res.send("An error occured while trying to update " + userToUpdate + ": " + err)
+			res.json(result)
+		} else if(err){
+			res.status(400)
+			res.json(err)
 		}
 	})
 })
@@ -56,12 +57,12 @@ router.put('/:username', jsonParser, (req, res) => {
 // DELETE requests
 router.delete('/:username', (req, res) => {
 	let username = req.params.username
-	userService.deleteUser(username, (err, user) => {
-		if(user){
-			res.send("User " + user + " deleted successfully")
-		} else if (err){
-			res.status(500)
-			res.send("An error occured while trying to delete " + username + ": " + err)
+	userService.deleteUser(username, (err, result) => {
+		if(result){
+			res.status(204)
+		} else if(err){
+			res.status(400)
+			res.json(err)
 		}
 	})
 })
