@@ -1,20 +1,22 @@
-const express = require('express');
-const database = require('./database/db');
-const app = express();
-const port = 8080;
+const express = require('express')
+const database = require('./database/db')
+const app = express()
+const port = 8080
 
-const testRoutes = require('./endpoints/test/TestRoutes');
-const userRoutes = require('./endpoints/user/UserRoutes');
-const publicUsersRoute = require('./endpoints/user/publicUsersRoute');
-
+// initialise db connection
 database.initDB((err, db) => {
-	if(db) console.log("database connection established");
-});
+	if(db) console.log("database connection established")
+})
 
-app.use('/',testRoutes);
-app.use('/user', userRoutes);
-app.use('/publicUsers', publicUsersRoute);
+// define source files for routes
+const userRoutes = require('./endpoints/user/UserRoutes')
+const publicUsersRoute = require('./endpoints/user/publicUsersRoute')
 
+// define which route uses which source file
+app.use('/user', userRoutes)
+app.use('/publicUsers', publicUsersRoute)
+
+// start webserver
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
+    console.log(`Example app listening on port ${port}`)
+})

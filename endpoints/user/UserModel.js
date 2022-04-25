@@ -1,5 +1,5 @@
-var mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+var mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
 
 const UserSchema = new mongoose.Schema({
 	id: Number,
@@ -14,6 +14,6 @@ const UserSchema = new mongoose.Schema({
 	},
 	password: String
 }, { timestamps: true }
-);
+)
 
-module.exports = UserSchema;
+module.exports = UserSchema

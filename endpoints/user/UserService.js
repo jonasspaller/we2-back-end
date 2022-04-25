@@ -1,71 +1,75 @@
-var mongoose = require('mongoose');
-const UserModel = require('./UserModel');
+var mongoose = require('mongoose')
+const UserModel = require('./UserModel')
+var User = mongoose.model('User', UserModel)
 
-var User = mongoose.model('User', UserModel);
-
+// get all users from database
 function getUsers(callback) {
-	User.find((err, users) => {
-		if(err){
-			console.log("Fehler bei Suche: " + err);
-			return callback(err, null);
+	User.find((err, result) => {
+		if(result){
+			callback(null, result)
 		} else {
-			console.log("Alles super");
-			return callback(null, users);
+			callback(err, null)
 		}
-	});
+	})
 }
 
+// get one specific user from database
 function getOneUser(username, callback){
-
-	User.findOne({userID: username}, (err, obj) => {
-		if(obj){
-			callback(null, obj);
+	User.findOne({userID: username}, (err, result) => {
+		if(result){
+			callback(null, result)
 		} else {
-			callback("User " + username + " konnte nicht gefunden werden", null);
+			callback(err, null)
 		}
-	});
-
+	})
 }
 
+// save new user to database, check if user already exists
 function saveUser(reqBody, callback) {
+	let newUser = new User(reqBody)
+	let newUserID = newUser.userID
 
-	var newUser = new User(reqBody);
-
-	// check if a user with this username already exists
-	var existingUser = getOneUser(newUser.userID, (err, obj) => {
-
-		if(obj){
-			callback("User already exists")
+	// check if a user with this userID already exists
+	getOneUser(newUserID, (err, result) => {
+		if(result){
+			callback("User " + newUserID + " already exists", null)
 		} else {
-
 			newUser.save()
-				.then(() => {
-					callback(null);
-				})
-				.catch(() => {
-					callback("err");
-				});
-
+			.then((savedUser) => {
+				callback(null, savedUser)
+			})
+			.catch((saveError) => {
+				callback(saveError, null)
+			})
 		}
-
-	});
-
+	})
 }
 
+// update user in the database
 function updateUser(username, updateBody, callback){
-	console.log("user to update: " + username);
-	User.findOneAndUpdate({userID: username}, updateBody, (err, obj) => {
-		if(obj){
-			callback();
+	User.findOneAndUpdate({userID: username}, updateBody, (err, result) => {
+		if(result){
+			callback(null, result)
 		} else {
-			callback(err);
+			callback(err, null)
 		}
-	});
+	})
+}
+
+// delete user from database
+function deleteUser(username, callback){
+	User.deleteOne({userID: username})
+	.then(() => {
+		callback(null, username)
+	}).catch((err) => {
+		callback(err, null)
+	})
 }
 
 module.exports = {
 	getUsers,
 	saveUser,
 	getOneUser,
-	updateUser
+	updateUser,
+	deleteUser
 }

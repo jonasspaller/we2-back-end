@@ -1,19 +1,19 @@
-const assert = require('assert');
-var mongoose = require('mongoose');
-const config = require('config');
+const assert = require('assert')
+var mongoose = require('mongoose')
+const config = require('config')
 
-let _db;
+let _db
 
-const connectionString = config.get('db.connectionString');
-const connectionOptions = config.get('db.dbConfigOptions');
+const connectionString = config.get('db.connectionString')
+const connectionOptions = config.get('db.dbConfigOptions')
 
 function initDB(callback) {
 
 	if(_db){
 		if(callback){
-			return callback(null, _db);
+			return callback(null, _db)
 		} else {
-			return _db;
+			return _db
 		}
 	} else {
 
@@ -22,15 +22,15 @@ function initDB(callback) {
 			connectionOptions
 		).then(() => {
 			// success
-			console.log("Connected to database " + connectionString);
-			callback(null, _db);
+			console.log("Connected to database " + connectionString)
+			callback(null, _db)
 		}).catch((err) => {
 			// failure
-			console.error("Failed to connect to database " + connectionString);
-			console.error(err);
+			console.error("Failed to connect to database " + connectionString)
+			console.error(err)
 		})
 		
-		_db = mongoose.connection;
+		_db = mongoose.connection
 
 		//_db.on('error', console.error.bind(console, "connection error: "));
 		//_db.once('open', () => {
@@ -43,7 +43,7 @@ function initDB(callback) {
 }
 
 function close() {
-	mongoose.connection.close();
+	mongoose.connection.close()
 }
 
 module.exports = {
