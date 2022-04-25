@@ -1,15 +1,13 @@
 var mongoose = require('mongoose')
-const { update } = require('./UserModel')
 const User = require('./UserModel')
-//var User = mongoose.model('User', UserModel)
 
 // get all users from database
 function getUsers(callback) {
 	User.find((err, result) => {
-		if(result){
-			callback(null, result)
+		if(err){
+			callback({"Error": "An error occured while trying to get users: " + err}, 500, null)
 		} else {
-			callback({"Error": "An error occured while trying to get users: " + err})
+			callback(null, 200, result)
 		}
 	})
 }
@@ -17,10 +15,12 @@ function getUsers(callback) {
 // get one specific user from database
 function getUserByID(userID, callback){
 	User.findOne({userID: userID}, (err, result) => {
-		if(result){
-			callback(null, result)
+		if(err){
+			callback({"Error": "An error occured in getUserByID(): " + err}, 500, null)
+		} else if(!result){
+			callback({"Error": "user " + userID + " was not found"}, 404, null)
 		} else {
-			callback({"Error": "user " + userID + " was not found"})
+			callback(null, 200, result)
 		}
 	})
 }
@@ -30,42 +30,47 @@ function saveUser(reqBody, callback) {
 	let newUser = new User(reqBody)
 	let newUserID = newUser.userID
 
-	// check if a user with this userID already exists
-	getUserByID(newUserID, (err, result) => {
-		if(result){
-			callback("User " + newUserID + " already exists")
-		} else {
-			newUser.save()
-			.then((savedUser) => {
-				callback(null, savedUser)
-			})
-			.catch(() => {
-				callback({"Error": "An error occured while trying to save user " + req.body.userID + ": " + err})
-			})
-		}
-	})
+	// check if new user has a userID set
+	if(newUserID == undefined || newUserID == null){
+		callback({"Error": "cannot set a new user without userID"}, 400, null)
+	} else {
+		// check if a user with this userID already exists
+		getUserByID(newUserID, (err, status, result) => {
+			if(!result){
+				newUser.save()
+				.then((savedUser) => {
+					callback(null, 201, savedUser)
+				})
+				.catch(() => {
+					callback({"Error": "An error occured while trying to save user " + newUserID + ": " + err}, 500, null)
+				})
+			} else if(result){
+				callback({"Error": "User " + newUserID + " already exists"}, 400, null)
+			} else if(err){
+				callback({"Error": "An error occured in getUserByID(): " + err}, status, null)
+			}
+		})
+	}
 }
 
 // update user in the database
 function updateUser(username, updateBody, callback){
 
 	// get user document from db
-	getUserByID(username, (err, result) => {
+	getUserByID(username, (err, status, result) => {
 		if(!result){
-			callback({"Error": "The user " + username + " does not exist"})
-		} else if(err){
-			callback({"Error": "An error occured in getOneUser(): " + err})
-		} else if(result){
+			callback(err, status, null)
+		} else {
 			// user found, time to update
 
 			Object.assign(result, updateBody)
 
 			result.save()
 			.then((savedUser) => {
-				callback(null, savedUser)
+				callback(null, 200, savedUser)
 			})
 			.catch(() => {
-				callback({"Error": "An error occured while trying to save user " + username + ": " + err})
+				callback({"Error": "An error occured while trying to save user " + username + ": " + err}, 500, null)
 			})
 		}
 	})
@@ -74,17 +79,15 @@ function updateUser(username, updateBody, callback){
 // delete user from database
 function deleteUser(username, callback){
 	// get user document from db
-	getUserByID(username, (err, result) => {
+	getUserByID(username, (err, status, result) => {
 		if(!result){
-			callback({"Error": "The user " + username + " does not exist"})
-		} else if(err){
-			callback({"Error": "An error occured in getOneUser(): " + err})
-		} else if(result){
+			callback(err, status, null)
+		} else {
 			User.deleteOne({userID: username})
-			.then(() => {
-				callback(null, username)
+			.then((deletedUser) => {
+				callback(null, 204, deletedUser)
 			}).catch((err) => {
-				callback({"Error": "An error occured while trying to delete " + username + ": " + err})
+				callback({"Error": "An error occured while trying to delete " + username + ": " + err}, 500, null)
 			})
 		}
 	})
