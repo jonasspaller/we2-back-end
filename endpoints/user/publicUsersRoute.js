@@ -1,19 +1,6 @@
 var express = require('express')
-var bodyParser = require('body-parser')
-var jsonParser = bodyParser.json()
 var router = express.Router()
 var userService = require("./UserService")
-
-// helper for sending responses
-function handleResponse(res, err, status, result){
-	if(err){
-		res.status(status)
-		res.json(err)
-	} else {
-		res.status(status)
-		res.json(result)
-	}
-}
 
 // GET requests
 router.get('/', (req, res) => {

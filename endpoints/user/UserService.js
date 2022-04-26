@@ -1,4 +1,3 @@
-var mongoose = require('mongoose')
 const User = require('./UserModel')
 
 // get all users from database
