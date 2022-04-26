@@ -5,9 +5,11 @@ const User = require('./UserModel')
 function getUsers(callback) {
 	User.find((err, result) => {
 		if(err){
-			callback({"Error": "An error occured while trying to get users: " + err}, 500, null)
+			callback(err)
+		} else if(!result){
+			callback(null, null)
 		} else {
-			callback(null, 200, result)
+			callback(null, result)
 		}
 	})
 }
@@ -16,62 +18,58 @@ function getUsers(callback) {
 function getUserByID(userID, callback){
 	User.findOne({userID: userID}, (err, result) => {
 		if(err){
-			callback({"Error": "An error occured in getUserByID(): " + err}, 500, null)
+			callback(err)
 		} else if(!result){
-			callback({"Error": "user " + userID + " was not found"}, 404, null)
+			callback(null, null)
 		} else {
-			callback(null, 200, result)
+			callback(null, result)
 		}
 	})
 }
 
 // save new user to database, check if user already exists
-function saveUser(reqBody, callback) {
+function saveUser(newUserID, reqBody, callback) {
 	let newUser = new User(reqBody)
-	let newUserID = newUser.userID
 
-	// check if new user has a userID set
-	if(newUserID == undefined || newUserID == null){
-		callback({"Error": "cannot set a new user without userID"}, 400, null)
-	} else {
-		// check if a user with this userID already exists
-		getUserByID(newUserID, (err, status, result) => {
-			if(!result){
-				newUser.save()
-				.then((savedUser) => {
-					callback(null, 201, savedUser)
-				})
-				.catch(() => {
-					callback({"Error": "An error occured while trying to save user " + newUserID + ": " + err}, 500, null)
-				})
-			} else if(result){
-				callback({"Error": "User " + newUserID + " already exists"}, 400, null)
-			} else if(err){
-				callback({"Error": "An error occured in getUserByID(): " + err}, status, null)
-			}
-		})
-	}
+	// check if a user with this userID already exists
+	getUserByID(newUserID, (err, result) => {
+		if(!result){
+			newUser.save()
+			.then((savedUser) => {
+				callback(null, savedUser)
+			})
+			.catch((saveErr) => {
+				callback(saveErr)
+			})
+		} else if(result){
+			callback(null, null)
+		} else if(err){
+			callback("Error in getUserByID(): " + err)
+		}
+	})
 }
 
 // update user in the database
 function updateUser(username, updateBody, callback){
 
 	// get user document from db
-	getUserByID(username, (err, status, result) => {
+	getUserByID(username, (err, result) => {
 		if(!result){
-			callback(err, status, null)
-		} else {
+			callback(null, null)
+		} else if(result){
 			// user found, time to update
 
 			Object.assign(result, updateBody)
 
 			result.save()
 			.then((savedUser) => {
-				callback(null, 200, savedUser)
+				callback(null, savedUser)
 			})
-			.catch(() => {
-				callback({"Error": "An error occured while trying to save user " + username + ": " + err}, 500, null)
+			.catch((updateErr) => {
+				callback(updateErr)
 			})
+		} else if(err){
+			callback("Error in getUserByID(): " + err)
 		}
 	})
 }
@@ -79,16 +77,18 @@ function updateUser(username, updateBody, callback){
 // delete user from database
 function deleteUser(username, callback){
 	// get user document from db
-	getUserByID(username, (err, status, result) => {
+	getUserByID(username, (err, result) => {
 		if(!result){
-			callback(err, status, null)
-		} else {
+			callback(null, null)
+		} else if(result) {
 			User.deleteOne({userID: username})
 			.then((deletedUser) => {
-				callback(null, 204, deletedUser)
-			}).catch((err) => {
-				callback({"Error": "An error occured while trying to delete " + username + ": " + err}, 500, null)
+				callback(null, deletedUser)
+			}).catch((deleteErr) => {
+				callback(deleteErr)
 			})
+		} else if(err){
+			callback("Error in getUserByID(): " + err)
 		}
 	})
 }
