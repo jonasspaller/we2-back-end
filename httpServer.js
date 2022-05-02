@@ -11,6 +11,10 @@ database.initDB((err, db) => {
 	if(db) console.log("database connection established")
 })
 
+// check if default admin already exists
+const UserService = require('./endpoints/user/UserService')
+UserService.checkDefaultAdmin()
+
 // define source files for routes
 const publicUsersRoute = require('./endpoints/user/publicUsersRoute')
 const authenticateRoute = require('./endpoints/authenticate/authenticateRoute')
