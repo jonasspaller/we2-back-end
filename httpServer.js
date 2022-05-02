@@ -13,9 +13,11 @@ database.initDB((err, db) => {
 
 // define source files for routes
 const publicUsersRoute = require('./endpoints/user/publicUsersRoute')
+const authenticateRoute = require('./endpoints/authenticate/authenticateRoute')
 
 // define routes
 app.use('/publicUsers', publicUsersRoute)
+app.use('/authenticate', authenticateRoute)
 
 // error message for non-existing endpoints
 app.all('/*', (req, res, next) => {
