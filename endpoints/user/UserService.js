@@ -113,11 +113,34 @@ function checkDefaultAdmin(callback){
 	})
 }
 
+// authenticate user
+function authenticate(userObj, callback){
+	getUserByID(userObj.userID, (err, user) => {
+		if(!user){
+			callback(null, null)
+		} else if(user){
+			// compare password
+			user.comparePassword(userObj.password, (err, isMatch) => {
+				if(err){
+					callback(err, null)
+				} else if(isMatch) {
+					callback(null, isMatch)
+				} else if(!isMatch){
+					callback(null, null)
+				}
+			})
+		} else if(err){
+			callback("Error in getUserByID(): " + err)
+		}
+	})
+}
+
 module.exports = {
 	getUsers,
 	saveUser,
 	getUserByID,
 	updateUser,
 	deleteUser,
-	checkDefaultAdmin
+	checkDefaultAdmin,
+	authenticate
 }
