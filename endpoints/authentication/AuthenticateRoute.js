@@ -3,10 +3,6 @@ var router = express.Router()
 var authenticationService = require('./AuthenticationService.js')
 
 
-
-var userService = require('../users/UserService')
-
-
 // GET requests
 router.get('/', (req, res) => {
 	// check if basic authentication header is sent

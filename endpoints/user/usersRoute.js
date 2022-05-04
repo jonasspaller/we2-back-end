@@ -1,41 +1,13 @@
 var express = require('express')
 var router = express.Router()
 var userService = require("./UserService")
+var authenticationService = require('../authentication/AuthenticationService')
 
-const jwt = require('jsonwebtoken')
-const config = require('config')
-
-const jwtKey = config.get('session.tokenKey')
-
-// check authorization
-function isAuthenticated(req, res, next){
-	if(typeof req.headers.authorization !== "undefined"){
-		let token = req.headers.authorization.split(" ")[1]
-		jwt.verify(token, jwtKey, {algorithm: "HS256"}, (err, user) => {
-			if(err){
-				// error happened
-				res.status(500)
-				res.send({"Error": "error while checking token: " + err})
-			} else if(!user){
-				// key invalid
-			} else if(user){
-				// key valid, only proceed if user is admin
-				if(user.isAdministrator){
-					return next()
-				} else {
-					res.status(401)
-					res.send({"Error": "user is no admin"})
-				}
-			}
-		})
-	} else {
-		res.status(401)
-		res.send({"Error": "Not authorized"})
-	}
-}
+// register middleware
+router.use(authenticationService.isAuthenticated)
 
 // GET requests
-router.get('/', isAuthenticated, (req, res, next) => {
+router.get('/', (req, res, next) => {
 	userService.getUsers((err, result) => {
 		if(err){
 			res.status(500)
@@ -57,7 +29,7 @@ router.get('/', isAuthenticated, (req, res, next) => {
 	})
 })
 
-router.get('/:username', isAuthenticated, (req, res) => {
+router.get('/:username', (req, res) => {
 	let username = req.params.username
 	userService.getUserByID(username, (err, result) => {
 		if(err){
@@ -76,7 +48,7 @@ router.get('/:username', isAuthenticated, (req, res) => {
 })
 
 // POST requests
-router.post('/', isAuthenticated, (req, res) => {
+router.post('/', (req, res) => {
 	let newUserID = req.body.userID
 	if(newUserID == undefined || newUserID == null){
 		res.status(400)
@@ -100,7 +72,7 @@ router.post('/', isAuthenticated, (req, res) => {
 })
 
 // PUT requests
-router.put('/:username', isAuthenticated, (req, res) => {
+router.put('/:username', (req, res) => {
 	let username = req.params.username
 	userService.updateUser(username, req.body, (err, result) => {
 		if(err){
@@ -119,7 +91,7 @@ router.put('/:username', isAuthenticated, (req, res) => {
 })
 
 // DELETE requests
-router.delete('/:username', isAuthenticated, (req, res) => {
+router.delete('/:username', (req, res) => {
 	let username = req.params.username
 	userService.deleteUser(username, (err, result) => {
 		if(err){

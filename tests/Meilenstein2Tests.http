@@ -50,6 +50,20 @@ Authorization: Basic manfred:asdf
 GET http://localhost:8080/users
 Authorization: {{manfredToken}}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### Auflisten aller Foren ohne Token
 GET http://localhost:8080/forumThreads
 

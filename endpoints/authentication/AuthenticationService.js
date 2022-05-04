@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken')
 const config = require('config')
-var userService = require('../users/UserService')
+var userService = require('../user/UserService')
+
+var jwtKey = config.get('session.tokenKey')
+var jwtTimeOut = config.get('session.timeOut')
 
 // check if password of a user matches with given password
 function checkUserPassword(userObj, callback){
@@ -34,9 +37,7 @@ function createToken(userObj, callback) {
 
 	// create token
 	var issuedAt = new Date().getTime()
-	var jwtTimeOut = config.get('session.timeOut')
 	var expiresAt = issuedAt + jwtTimeOut
-	var jwtKey = config.get('session.tokenKey')
 	let token = jwt.sign({
 		"userID": userObj.userID,
 		"userName": userObj.userName,
@@ -51,7 +52,32 @@ function createToken(userObj, callback) {
 
 }
 
+// check authorization middleware
+function isAuthenticated(req, res, next){
+	if(typeof req.headers.authorization !== "undefined"){
+		let token = req.headers.authorization.split(" ")[1]
+
+		var user
+		try {
+			user = jwt.verify(token, jwtKey, {algorithm: "HS256"})
+		} catch(err){
+			return res.status(401).json({"Error": "invalid token"})
+		}
+
+		// check if user is admin
+		if(user.isAdministrator){
+			return next()
+		} else {
+			return res.status(401).json({"Error": "User is no admin"})
+		}
+	} else {
+		// authorization header is not set, token expired or user is no admin
+		return res.status(401).json({"Error": "Unauthorized"})
+	}
+}
+
 module.exports = {
 	createToken,
-	checkUserPassword
+	checkUserPassword,
+	isAuthenticated
 }

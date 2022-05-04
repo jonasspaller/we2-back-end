@@ -12,18 +12,20 @@ database.initDB((err, db) => {
 })
 
 // check if default admin already exists
-const UserService = require('./endpoints/users/UserService')
+const UserService = require('./endpoints/user/UserService')
 UserService.checkDefaultAdmin()
 
 // define source files for routes
-const publicUsersRoute = require('./endpoints/users/publicUsersRoute')
-const usersRoute = require('./endpoints/users/usersRoute')
-const authenticateRoute = require('./endpoints/authentication/AuthenticateRoute')
+const publicUsersRoutes = require('./endpoints/user/publicUsersRoute')
+const usersRoutes = require('./endpoints/user/usersRoute')
+const authenticateRoutes = require('./endpoints/authentication/AuthenticateRoute')
+const forumThreadRoutes = require('./endpoints/forumThread/ForumThreadRoute')
 
 // define routes
-app.use('/publicUsers', publicUsersRoute)
-app.use('/users', usersRoute)
-app.use('/authenticate', authenticateRoute)
+app.use('/publicUsers', publicUsersRoutes)
+app.use('/users', usersRoutes)
+app.use('/authenticate', authenticateRoutes)
+app.use('/forumThreads', forumThreadRoutes)
 
 // error message for non-existing endpoints
 app.all('/*', (req, res, next) => {
