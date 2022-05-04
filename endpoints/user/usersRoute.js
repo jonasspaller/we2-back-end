@@ -5,6 +5,7 @@ var authenticationService = require('../authentication/AuthenticationService')
 
 // register middleware
 router.use(authenticationService.isAuthenticated)
+router.use(authenticationService.isAdmin)
 
 // GET requests
 router.get('/', (req, res, next) => {

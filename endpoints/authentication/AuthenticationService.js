@@ -47,9 +47,7 @@ function createToken(userObj, callback) {
 		expiresIn: expiresAt,
 		algorithm: 'HS256'
 	})
-
 	callback(null, token, userObj)
-
 }
 
 // check authorization middleware
@@ -63,21 +61,32 @@ function isAuthenticated(req, res, next){
 		} catch(err){
 			return res.status(401).json({"Error": "invalid token"})
 		}
-
-		// check if user is admin
-		if(user.isAdministrator){
-			return next()
-		} else {
-			return res.status(401).json({"Error": "User is no admin"})
-		}
+		
+		// pass user to next middleware
+		res.locals.user = user
+		return next()
 	} else {
 		// authorization header is not set, token expired or user is no admin
 		return res.status(401).json({"Error": "Unauthorized"})
 	}
 }
 
+// check if user from previous middleware is admin
+function isAdmin(req, res, next){
+	const user = res.locals.user
+	if(user){
+		// check if admin
+		if(user.isAdministrator){
+			return next()
+		} else {
+			return res.status(401).json({"Error": "user is no admin"})
+		}
+	}
+}
+
 module.exports = {
 	createToken,
 	checkUserPassword,
-	isAuthenticated
+	isAuthenticated,
+	isAdmin
 }
