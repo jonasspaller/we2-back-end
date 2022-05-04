@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 	const ownerID = req.query.ownerID
 	if(ownerID){
 		// get all forumThreads from just this user
-		forumThreadService.getAllForumThreadsByFilter({ownerID: userID}, (err, threads) => {
+		forumThreadService.getAllForumThreadsByOwnerID(ownerID, (err, threads) => {
 			if(err){
 				res.status(500)
 				res.send({"Error": "An error occured while trying to get ForumThreads: " + err})
@@ -45,7 +45,7 @@ router.get('/', (req, res) => {
 // read single forumThread
 router.get('/:threadID', (req, res) => {
 	const threadID = req.params.threadID
-	forumThreadService.getAllForumThreadsByFilter({_id: threadID}, (err, threads) => {
+	forumThreadService.getForumThreadByID(threadID, (err, threads) => {
 		if(err){
 			res.status(500)
 			res.send({"Error": "An error occured while trying to get ForumThreads: " + err})
@@ -62,7 +62,7 @@ router.get('/:threadID', (req, res) => {
 // read all forumThreads from logged in user (get userID from token)
 myForumThreadsRouter.get('/', authenticationService.isAuthenticated, (req, res) => {
 	const userID = res.locals.user.userID
-	forumThreadService.getAllForumThreadsByFilter({ownerID: userID}, (err, threads) => {
+	forumThreadService.getAllForumThreadsByOwnerID(userID, (err, threads) => {
 		if(err){
 			res.status(500)
 			res.send({"Error": "An error occured while trying to get ForumThreads: " + err})

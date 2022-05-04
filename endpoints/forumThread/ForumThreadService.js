@@ -14,8 +14,8 @@ function getAllForumThreads(callback){
 }
 
 // get all forumThreads from one specific user
-function getAllForumThreadsByFilter(filter, callback){
-	ForumThread.find(filter, (err, threads) => {
+function getAllForumThreadsByOwnerID(userID, callback){
+	ForumThread.find({ownerID: userID}, (err, threads) => {
 		if(err){
 			callback(err, null)
 		} else if(!threads){
@@ -61,7 +61,7 @@ function deleteForumThread(threadID, callback){
 
 module.exports = {
 	getAllForumThreads,
-	getAllForumThreadsByFilter,
+	getAllForumThreadsByOwnerID,
 	saveForumThread,
 	deleteForumThread
 }
