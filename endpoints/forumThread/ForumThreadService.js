@@ -26,6 +26,19 @@ function getAllForumThreadsByOwnerID(userID, callback){
 	})
 }
 
+// get single ForumThread by its id
+function getForumThreadByID(threadID, callback){
+	ForumThread.findById(threadID, (err, thread) => {
+		if(err){
+			callback(err)
+		} else if(!thread){
+			callback(null, null)
+		} else if(thread){
+			callback(null, thread)
+		}
+	})
+}
+
 // save new ForumThread to database
 function saveForumThread(ownerID, reqBody, callback) {
 	const newThread = new ForumThread(reqBody)
@@ -39,22 +52,54 @@ function saveForumThread(ownerID, reqBody, callback) {
 	})
 }
 
-// delete ForumThread from database
-function deleteForumThread(threadID, callback){
+// update ForumThread in database
+function updateForumThread(threadID, updateBody, askingUserID, callback){
 	// get ForumThread document from db
-	getAllForumThreadsByFilter({_id: threadID}, (err, thread) => {
+	getForumThreadByID(threadID, (err, thread) => {
 		if(err){
-			callback("Error in getAllForumThreadsByFilter(): " + err)
+			callback("Error in getForumThreadByID(): " + err)
 		} else if(!thread){
-			callback(null, null)
+			callback(null, null, null)
 		} else if(thread){
-			ForumThread.deleteOne({_id: threadID})
-			.then((deletedThread) => {
-				callback(null, deletedThread)
-			})
-			.catch((deleteError) => {
-				callback(deleteError)
-			})
+			// found thread, check if asking user is the owner
+			if(askingUserID === thread.ownerID){
+				Object.assign(thread, updateBody)
+
+				thread.save()
+				.then((savedThread) => {
+					callback(null, savedThread, true)
+				})
+				.catch((saveError) => {
+					callback(saveError)
+				})
+			} else {
+				callback(null, null, false)
+			}
+		}
+	})
+}
+
+// delete ForumThread from database
+function deleteForumThread(threadID, askingUserID, callback){
+	// get ForumThread document from db
+	getForumThreadByID(threadID, (err, thread) => {
+		if(err){
+			callback("Error in getForumThreadByID(): " + err)
+		} else if(!thread){
+			callback(null, null, null)
+		} else if(thread){
+			// found thread, check if asking user is the owner
+			if(askingUserID === thread.ownerID){
+				ForumThread.deleteOne({_id: threadID})
+				.then((deletedThread) => {
+					callback(null, deletedThread, true)
+				})
+				.catch((deleteError) => {
+					callback(deleteError)
+				})
+			} else {
+				callback(null, null, false)
+			}
 		}
 	})
 }
@@ -62,6 +107,8 @@ function deleteForumThread(threadID, callback){
 module.exports = {
 	getAllForumThreads,
 	getAllForumThreadsByOwnerID,
+	getForumThreadByID,
 	saveForumThread,
+	updateForumThread,
 	deleteForumThread
 }

@@ -45,16 +45,16 @@ router.get('/', (req, res) => {
 // read single forumThread
 router.get('/:threadID', (req, res) => {
 	const threadID = req.params.threadID
-	forumThreadService.getForumThreadByID(threadID, (err, threads) => {
+	forumThreadService.getForumThreadByID(threadID, (err, thread) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to get ForumThreads: " + err})
-		} else if(!threads){
+			res.send({"Error": "An error occured while trying to get ForumThread with id" + threadID + ": " + err})
+		} else if(!thread){
 			res.status(404)
-			res.send({"Error": "Could not find ForumThreads"})
+			res.send({"Error": "Could not find ForumThread with id " + threadID})
 		} else {
 			res.status(200)
-			res.send(threads)
+			res.send(thread)
 		}
 	})
 })
@@ -90,24 +90,52 @@ router.post('/', authenticationService.isAuthenticated, (req, res) => {
 	})
 })
 
-// update forumThread
+// update forumThread (only if logged in  user is the owner)
 router.put('/:threadID', authenticationService.isAuthenticated, (req, res) => {
-
+	const threadID = req.params.threadID
+	const askingUserID = res.locals.user.userID
+	forumThreadService.updateForumThread(threadID, req.body, askingUserID, (err, updatedThread, ownerCorrect) => {
+		if(err){
+			res.status(500)
+			res.send({"Error": "An error occured while trying to update ForumThread with id " + threadID + ": " + err})
+		} else {
+			if(ownerCorrect){
+				if(!updatedThread){
+					res.status(404)
+					res.send({"Error": "Could not find ForumThread with id " + threadID})
+				} else {
+					res.status(200)
+					res.send(updatedThread)
+				}
+			} else {
+				res.status(401)
+				res.send({"Error": "you are not the owner of this thread"})
+			}
+		}
+	})
 })
 
-// delete forumThread
+// delete forumThread (only if logged in  user is the owner)
 router.delete('/:threadID', authenticationService.isAuthenticated, (req, res) => {
 	const threadID = req.params.threadID
-	forumThreadService.deleteForumThread(threadID, (err, deletedThread) => {
+	const askingUserID = res.locals.user.userID
+	forumThreadService.deleteForumThread(threadID, askingUserID, (err, deletedThread, ownerCorrect) => {
 		if(err){
 			res.status(500)
 			res.send({"Error": "An error occured while trying to delete ForumThread with id " + threadID + ": " + err})
-		} else if(!deletedThread){
-			res.status(404)
-			res.send({"Error": "Could not find ForumThread with id " + threadID})
 		} else {
-			res.status(204)
-			res.send(deletedThread)
+			if(ownerCorrect){
+				if(!deletedThread){
+					res.status(404)
+					res.send({"Error": "Could not find ForumThread with id " + threadID})
+				} else {
+					res.status(204)
+					res.send(deletedThread)
+				}
+			} else {
+				res.status(401)
+				res.send({"Error": "you are not the owner of this thread"})
+			}
 		}
 	})
 })
