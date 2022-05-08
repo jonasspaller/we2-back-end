@@ -34,8 +34,8 @@ router.get('/', (req, res) => {
 
 						// return tokenUser, but without password
 						if(tokenUser){
-							const {userID, userName, ...partialObject} = tokenUser
-							const subset = {userID, userName}
+							const {userID, userName, isAdministrator, ...partialObject} = tokenUser
+							const subset = {userID, userName, isAdministrator}
 							res.send(subset)
 						} else {
 							console.log("tokenUser is null, but token could be created")

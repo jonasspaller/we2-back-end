@@ -19,8 +19,8 @@ router.get('/', (req, res, next) => {
 		} else {
 			var helperArray = []
 			result.map((element) => {
-				const {userID, userName, ...partialObject} = element
-				const subset = {userID, userName}
+				const {userID, userName, isAdministrator, ...partialObject} = element
+				const subset = {userID, userName, isAdministrator}
 				helperArray.push(subset)
 			})
 
@@ -40,8 +40,8 @@ router.get('/:username', (req, res) => {
 			res.status(404)
 			res.send({"Error": "Could not find user " + username})
 		} else {
-			const {userID, userName, ...partialObject} = result
-			const subset = {userID, userName}
+			const {userID, userName, isAdministrator, ...partialObject} = result
+			const subset = {userID, userName, isAdministrator}
 			res.status(200)
 			res.send(subset)
 		}
@@ -63,8 +63,8 @@ router.post('/', (req, res) => {
 				res.status(400)
 				res.send({"Error": "User " + newUserID + " already exists"})
 			} else {
-				const {userID, userName, ...partialObject} = result
-				const subset = {userID, userName}
+				const {userID, userName, isAdministrator, ...partialObject} = result
+				const subset = {userID, userName, isAdministrator}
 				res.status(201)
 				res.send(subset)
 			}
@@ -83,8 +83,8 @@ router.put('/:username', (req, res) => {
 			res.status(404)
 			res.send({"Error": "Could not find user " + username})
 		} else {
-			const {userID, userName, ...partialObject} = result
-			const subset = {userID, userName}
+			const {userID, userName, isAdministrator, ...partialObject} = result
+			const subset = {userID, userName, isAdministrator}
 			res.status(200)
 			res.send(subset)
 		}
@@ -102,8 +102,8 @@ router.delete('/:username', (req, res) => {
 			res.status(404)
 			res.send({"Error": "Could not find user " + username})
 		} else {
-			const {userID, userName, ...partialObject} = result
-			const subset = {userID, userName}
+			const {userID, userName, isAdministrator, ...partialObject} = result
+			const subset = {userID, userName, isAdministrator}
 			res.status(204)
 			res.send(subset)
 		}
