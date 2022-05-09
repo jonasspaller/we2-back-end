@@ -8,16 +8,16 @@ function isAuthenticated(req, res, next){
 	if(typeof req.headers.authorization !== "undefined"){
 		let token = req.headers.authorization.split(" ")[1]
 
-		var user
-		try {
-			user = jwt.verify(token, jwtKey, {algorithm: "HS256"})
-		} catch(err){
-			return res.status(401).json({"Error": "invalid token"})
-		}
-		
-		// pass user to next middleware
-		res.locals.user = user
-		return next()
+		//user = jwt.verify(token, jwtKey, {algorithm: "HS256"})
+		jwt.verify(token, jwtKey, {algorithm: "HS256"}, (err, decoded) => {
+			if(err){
+				return res.status(401).json({"Error": "invalid token"})
+			} else if(decoded){
+				console.log("Token expires in " + decoded.exp)
+				res.locals.user = decoded
+				return next()
+			}
+		})
 	} else {
 		// authorization header is not set or token expired
 		return res.status(401).json({"Error": "Unauthorized"})
