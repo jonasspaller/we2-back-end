@@ -2,7 +2,7 @@ var express = require('express')
 var router = express.Router()
 var myForumThreadsRouter = express.Router({mergeParams: true})
 var forumThreadService = require('./ForumThreadService')
-var authenticationService = require('../authentication/AuthenticationService')
+var authenticationService = require('../../utils/AuthenticationUtils')
 
 // set nested route for /forumThreads/myForumThreads
 router.use('/myForumThreads', myForumThreadsRouter)

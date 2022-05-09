@@ -1,7 +1,7 @@
 var express = require('express')
 var router = express.Router()
 var userService = require("./UserService")
-var authenticationService = require('../authentication/AuthenticationService')
+var authenticationService = require('../../utils/AuthenticationUtils')
 
 // register middleware
 router.use(authenticationService.isAuthenticated)
