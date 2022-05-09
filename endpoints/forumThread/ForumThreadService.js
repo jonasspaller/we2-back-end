@@ -53,7 +53,7 @@ function saveForumThread(ownerID, reqBody, callback) {
 }
 
 // update ForumThread in database
-function updateForumThread(threadID, updateBody, askingUserID, callback){
+function updateForumThread(threadID, updateBody, askingUser, callback){
 	// get ForumThread document from db
 	getForumThreadByID(threadID, (err, thread) => {
 		if(err){
@@ -61,8 +61,8 @@ function updateForumThread(threadID, updateBody, askingUserID, callback){
 		} else if(!thread){
 			callback(null, null, null)
 		} else if(thread){
-			// found thread, check if asking user is the owner
-			if(askingUserID === thread.ownerID){
+			// found thread, check if asking user is the owner or admin
+			if(askingUser.userID === thread.ownerID || askingUser.isAdministrator){
 				Object.assign(thread, updateBody)
 
 				thread.save()
@@ -80,7 +80,7 @@ function updateForumThread(threadID, updateBody, askingUserID, callback){
 }
 
 // delete ForumThread from database
-function deleteForumThread(threadID, askingUserID, callback){
+function deleteForumThread(threadID, askingUser, callback){
 	// get ForumThread document from db
 	getForumThreadByID(threadID, (err, thread) => {
 		if(err){
@@ -88,8 +88,8 @@ function deleteForumThread(threadID, askingUserID, callback){
 		} else if(!thread){
 			callback(null, null, null)
 		} else if(thread){
-			// found thread, check if asking user is the owner
-			if(askingUserID === thread.ownerID){
+			// found thread, check if asking user is the owner or admin
+			if(askingUser.userID === thread.ownerID || askingUser.isAdministrator){
 				ForumThread.deleteOne({_id: threadID})
 				.then((deletedThread) => {
 					callback(null, deletedThread, true)

@@ -93,7 +93,7 @@ function deleteUser(username, callback){
 }
 
 // check for default admin
-function checkDefaultAdmin(callback){
+function checkDefaultAdmin(){
 	// save default admin
 	const data = {
 		userID: "admin",
@@ -108,7 +108,7 @@ function checkDefaultAdmin(callback){
 		} else if(result){
 			console.log("checkDefaultAdmin(): created default admin: " + result)
 		} else if(err){
-			callback("checkDefaultAdmin(): Error: " + err, null)
+			console.log("checkDefaultAdmin(): Error: " + err, null)
 		}
 	})
 }

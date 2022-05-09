@@ -93,8 +93,8 @@ router.post('/', authenticationService.isAuthenticated, (req, res) => {
 // update forumThread (only if logged in  user is the owner)
 router.put('/:threadID', authenticationService.isAuthenticated, (req, res) => {
 	const threadID = req.params.threadID
-	const askingUserID = res.locals.user.userID
-	forumThreadService.updateForumThread(threadID, req.body, askingUserID, (err, updatedThread, ownerCorrect) => {
+	const askingUser = res.locals.user
+	forumThreadService.updateForumThread(threadID, req.body, askingUser, (err, updatedThread, ownerCorrect) => {
 		if(err){
 			res.status(500)
 			res.send({"Error": "An error occured while trying to update ForumThread with id " + threadID + ": " + err})
@@ -118,8 +118,8 @@ router.put('/:threadID', authenticationService.isAuthenticated, (req, res) => {
 // delete forumThread (only if logged in  user is the owner)
 router.delete('/:threadID', authenticationService.isAuthenticated, (req, res) => {
 	const threadID = req.params.threadID
-	const askingUserID = res.locals.user.userID
-	forumThreadService.deleteForumThread(threadID, askingUserID, (err, deletedThread, ownerCorrect) => {
+	const askingUser = res.locals.user
+	forumThreadService.deleteForumThread(threadID, askingUser, (err, deletedThread, ownerCorrect) => {
 		if(err){
 			res.status(500)
 			res.send({"Error": "An error occured while trying to delete ForumThread with id " + threadID + ": " + err})

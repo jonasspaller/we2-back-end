@@ -89,6 +89,20 @@ Content-Type: application/json
 ###
 @secondForumThreadID = {{createSecondForumRequest.response.body._id}}
 
+### Lege ein drittes Forum an, Manfred ist owner
+# @name createThirdForumRequest
+POST http://localhost:8080/forumThreads
+Authorization: {{manfredToken}}
+Content-Type: application/json
+
+{
+    "name": "Mein drittes Forum",
+    "description": "Das ist ein drittes Forum, welches Manfred gehoert."
+}
+
+###
+@thirdForumThreadID = {{createThirdForumRequest.response.body._id}}
+
 ### Auflisten aller Foren ohne Token, nun sollte es zwei Foren geben
 http://localhost:8080/forumThreads
 
@@ -116,6 +130,15 @@ Content-Type: application/json
     "description": "Das sollte nicht funktionieren."
 }
 
+### Ändere die forumDescription in dem dritten Forum als admin (manfred ist owner)
+PUT http://localhost:8080/forumThreads/{{thirdForumThreadID}}
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "description": "Der Admin hat das hier geändert"
+}
+
 ### Auflisten der Foren des aktuellen users
 GET http://localhost:8080/forumThreads/myForumThreads
 Authorization: {{adminToken}}
@@ -130,6 +153,10 @@ Authorization: {{adminToken}}
 ### Lösche den zweiten angelegten Forum-Thread mit falschem Token
 DELETE http://localhost:8080/forumThreads/{{secondForumThreadID}}
 Authorization: {{manfredToken}}
+
+### Lösche den dritten angelegten Forum-Thread mit admin Token (manfred ist owner)
+DELETE http://localhost:8080/forumThreads/{{thirdForumThreadID}}
+Authorization: {{adminToken}}
 
 ### Lösche den User manfred
 DELETE http://localhost:8080/users/manfred
