@@ -103,7 +103,7 @@ Content-Type: application/json
 ###
 @thirdForumThreadID = {{createThirdForumRequest.response.body._id}}
 
-### Auflisten aller Foren ohne Token, nun sollte es zwei Foren geben
+### Auflisten aller Foren ohne Token, nun sollte es drei Foren geben
 http://localhost:8080/forumThreads
 
 ### Abrufen von dem ersten angelegten Forum-Thread
@@ -122,7 +122,7 @@ Content-Type: application/json
 }
 
 ### Ändere die forumDescription in dem zweiten Forum als manfred
-PUT http://localhost:8080/forumThreads/{{firstForumThreadID}}
+PUT http://localhost:8080/forumThreads/{{secondForumThreadID}}
 Authorization: {{manfredToken}}
 Content-Type: application/json
 

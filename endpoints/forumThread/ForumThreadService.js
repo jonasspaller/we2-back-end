@@ -73,7 +73,7 @@ function updateForumThread(threadID, updateBody, askingUser, callback){
 					callback(saveError)
 				})
 			} else {
-				callback(null, null, false)
+				callback(null, Object, false)
 			}
 		}
 	})
@@ -98,7 +98,8 @@ function deleteForumThread(threadID, askingUser, callback){
 					callback(deleteError)
 				})
 			} else {
-				callback(null, null, false)
+				// thread found, but no permission
+				callback(null, Object, false)
 			}
 		}
 	})

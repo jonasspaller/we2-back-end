@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
 				res.status(500)
 				res.send({"Error": "internal error in authenticationService.checkUserPassword(): " + err})
 			} else if(isMatch){
-				authenticationService.createToken(userObj, (err, token, tokenUser) => {
+				authenticationService.createToken(userObj, (err, token) => {
 					if(err){
 						res.status(500)
 						res.json({"Error": "internal error in createToken(): " + err})
@@ -31,15 +31,7 @@ router.get('/', (req, res) => {
 						res.json({"Error": "could not create token"})
 					} else if(token){
 						res.header("Authorization", "Bearer " + token)
-
-						// return tokenUser, but without password
-						if(tokenUser){
-							const {userID, userName, isAdministrator, ...partialObject} = tokenUser
-							const subset = {userID, userName, isAdministrator}
-							res.send(subset)
-						} else {
-							console.log("tokenUser is null, but token could be created")
-						}
+						res.json({"Message": "token created successfully"})
 					}
 				})
 			} else if(!isMatch){

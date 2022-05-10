@@ -99,17 +99,17 @@ router.put('/:threadID', authenticationService.isAuthenticated, (req, res) => {
 			res.status(500)
 			res.send({"Error": "An error occured while trying to update ForumThread with id " + threadID + ": " + err})
 		} else {
-			if(ownerCorrect){
-				if(!updatedThread){
-					res.status(404)
-					res.send({"Error": "Could not find ForumThread with id " + threadID})
-				} else {
+			if(updatedThread){
+				if(ownerCorrect){
 					res.status(200)
 					res.send(updatedThread)
+				} else {
+					res.status(403)
+					res.send({"Error": "you are not the owner of this thread"})
 				}
 			} else {
-				res.status(401)
-				res.send({"Error": "you are not the owner of this thread"})
+				res.status(404)
+				res.send({"Error": "Could not find ForumThread with id " + threadID})
 			}
 		}
 	})
@@ -124,17 +124,17 @@ router.delete('/:threadID', authenticationService.isAuthenticated, (req, res) =>
 			res.status(500)
 			res.send({"Error": "An error occured while trying to delete ForumThread with id " + threadID + ": " + err})
 		} else {
-			if(ownerCorrect){
-				if(!deletedThread){
-					res.status(404)
-					res.send({"Error": "Could not find ForumThread with id " + threadID})
-				} else {
+			if(deletedThread){
+				if(ownerCorrect){
 					res.status(204)
 					res.send(deletedThread)
+				} else {
+					res.status(403)
+					res.json({"Error": "you are not the owner of this thread"})
 				}
 			} else {
-				res.status(401)
-				res.send({"Error": "you are not the owner of this thread"})
+				res.status(404)
+				res.send({"Error": "Could not find ForumThread with id " + threadID})
 			}
 		}
 	})

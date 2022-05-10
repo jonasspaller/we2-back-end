@@ -9,12 +9,11 @@ function isAuthenticated(req, res, next){
 		let token = req.headers.authorization.split(" ")[1]
 
 		//user = jwt.verify(token, jwtKey, {algorithm: "HS256"})
-		jwt.verify(token, jwtKey, {algorithm: "HS256"}, (err, decoded) => {
+		jwt.verify(token, jwtKey, {algorithm: "HS256"}, (err, payload) => {
 			if(err){
-				return res.status(401).json({"Error": "invalid token"})
-			} else if(decoded){
-				console.log("Token expires in " + decoded.exp)
-				res.locals.user = decoded
+				return res.status(401).json({"Error": "invalid token: " + err})
+			} else if(payload){
+				res.locals.user = payload
 				return next()
 			}
 		})
@@ -32,7 +31,7 @@ function isAdmin(req, res, next){
 		if(user.isAdministrator){
 			return next()
 		} else {
-			return res.status(401).json({"Error": "user is no admin"})
+			return res.status(403).json({"Error": "user is no admin. Permission denied."})
 		}
 	}
 }

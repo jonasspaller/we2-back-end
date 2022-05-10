@@ -32,22 +32,19 @@ function checkUserPassword(userObj, callback){
 function createToken(userObj, callback) {
 	if(!userObj){
 		callback("userObj missing")
-		return
+	} else {
+		// create token
+		let token = jwt.sign({
+			"userID": userObj.userID,
+			"userName": userObj.userName,
+			"isAdministrator": userObj.isAdministrator
+		},
+		jwtKey, {
+			expiresIn: jwtTimeOut,
+			algorithm: 'HS256'
+		})
+		callback(null, token)
 	}
-
-	// create token
-	var issuedAt = new Date().getTime()
-	var expiresAt = issuedAt + jwtTimeOut
-	let token = jwt.sign({
-		"userID": userObj.userID,
-		"userName": userObj.userName,
-		"isAdministrator": userObj.isAdministrator
-	},
-	jwtKey, {
-		expiresIn: expiresAt,
-		algorithm: 'HS256'
-	})
-	callback(null, token, userObj)
 }
 
 module.exports = {
