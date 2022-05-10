@@ -31,7 +31,7 @@ function isAdmin(req, res, next){
 		if(user.isAdministrator){
 			return next()
 		} else {
-			return res.status(403).json({"Error": "user is no admin. Permission denied."})
+			return res.status(401).json({"Error": "user is no admin. Permission denied."})
 		}
 	}
 }

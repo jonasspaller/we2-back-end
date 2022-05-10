@@ -104,7 +104,7 @@ router.put('/:threadID', authenticationService.isAuthenticated, (req, res) => {
 					res.status(200)
 					res.send(updatedThread)
 				} else {
-					res.status(403)
+					res.status(401)
 					res.send({"Error": "you are not the owner of this thread"})
 				}
 			} else {
@@ -129,7 +129,7 @@ router.delete('/:threadID', authenticationService.isAuthenticated, (req, res) =>
 					res.status(204)
 					res.send(deletedThread)
 				} else {
-					res.status(403)
+					res.status(401)
 					res.json({"Error": "you are not the owner of this thread"})
 				}
 			} else {
