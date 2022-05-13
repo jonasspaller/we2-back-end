@@ -16,6 +16,20 @@ router.get('/', (req, res) => {
 	})
 })
 
+// create new forumMessage
+router.post('/', authenticationService.isAuthenticated, (req, res) => {
+	const authorID = res.locals.user.userID
+	forumMessageService.saveForumMessage(authorID, req.body, (err, savedMessage) => {
+		if(err){
+			res.status(500)
+			res.send({"Error": "An error occured while trying to save ForumMessage: " + err})
+		} else if(savedMessage){
+			res.status(201)
+			res.send(savedMessage)
+		}
+	})
+})
+
 
 
 /***
@@ -54,19 +68,7 @@ myForumThreadsRouter.get('/', authenticationService.isAuthenticated, (req, res) 
 	})
 })
 
-// create new forumThread
-router.post('/', authenticationService.isAuthenticated, (req, res) => {
-	const ownerID = res.locals.user.userID
-	forumThreadService.saveForumThread(ownerID, req.body, (err, savedThread) => {
-		if(err){
-			res.status(500)
-			res.send({"Error": "An error occured while trying to save ForumThread: " + err})
-		} else if(savedThread){
-			res.status(201)
-			res.send(savedThread)
-		}
-	})
-})
+
 
 // update forumThread (only if logged in  user is the owner)
 router.put('/:threadID', authenticationService.isAuthenticated, (req, res) => {

@@ -146,8 +146,8 @@ Content-Type: application/json
 
 {
     "forumThreadID": "{{forumThreadID}}",
-    "messageTitle": "Meine erste Forumnachricht",
-    "messageText": "Das wollte ich nur kurz in das Forum schreiben."
+    "title": "Meine erste Forumnachricht",
+    "text": "Das wollte ich nur kurz in das Forum schreiben."
 }
 ###
 @forumMessageID = {{createForumMessageRequest.response.body._id}}

@@ -2,8 +2,19 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
-const port = 8080
+const port = 443
 app.use(bodyParser.json())
+
+// SSL certificates
+const fs = require('fs')
+const key = fs.readFileSync('./certificates/key.pem')
+const cert = fs.readFileSync('./certificates/cert.pem')
+
+const https = require('https')
+const server = https.createServer({
+	key: key,
+	cert: cert
+}, app)
 
 // initialise db connection
 const database = require('./database/db')
@@ -36,6 +47,6 @@ app.all('/*', (req, res, next) => {
 })
 
 // start webserver
-app.listen(port, () => {
+server.listen(port, () => {
 	console.log(`Example app listening on port ${port}`)
 })

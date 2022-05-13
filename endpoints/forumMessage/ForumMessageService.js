@@ -11,8 +11,22 @@ function getAllForumMessages(callback){
 	})
 }
 
+// save new ForumMessage to database
+function saveForumMessage(authorID, reqBody, callback) {
+	const newForumMessage = new ForumMessage(reqBody)
+	newForumMessage.authorID = authorID
+	newForumMessage.save()
+	.then((savedMessage) => {
+		callback(null, savedMessage)
+	})
+	.catch((saveError) => {
+		callback(saveError)
+	})
+}
+
 module.exports = {
-	getAllForumMessages
+	getAllForumMessages,
+	saveForumMessage
 }
 
 
