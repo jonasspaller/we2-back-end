@@ -20,12 +20,14 @@ const publicUsersRoutes = require('./endpoints/user/publicUsersRoute')
 const usersRoutes = require('./endpoints/user/usersRoute')
 const authenticateRoutes = require('./endpoints/authentication/AuthenticateRoute')
 const forumThreadRoutes = require('./endpoints/forumThread/ForumThreadRoute')
+const forumMessagesRoute = require('./endpoints/forumMessage/ForumMessageRoute')
 
 // define routes
 app.use('/publicUsers', publicUsersRoutes)
 app.use('/users', usersRoutes)
 app.use('/authenticate', authenticateRoutes)
 app.use('/forumThreads', forumThreadRoutes)
+app.use('/forumMessages', forumMessagesRoute)
 
 // error message for non-existing endpoints
 app.all('/*', (req, res, next) => {
