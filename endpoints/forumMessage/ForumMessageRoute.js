@@ -5,15 +5,38 @@ const authenticationService = require('../../utils/AuthenticationUtils')
 
 // read all forumMessages
 router.get('/', (req, res) => {
-	forumMessageService.getAllForumMessages((err, messages) => {
-		if(err){
-			res.status(500)
-			res.json({"Error": "An error occured while trying to get ForumMessages: " + err})
-		} else {
-			res.status(200)
-			res.json(messages)
-		}
-	})
+	// check if URI param forumThreadID is set
+	const forumThreadID = req.query.forumThreadID
+	if(forumThreadID){
+		forumMessageService.getAllForumMessagesByThreadID(forumThreadID, (err, thread, messages) => {
+			if(err){
+				res.status(500)
+				res.send({"Error": "An error occured while trying to get ForumMessages: " + err})
+			} else if(!thread){
+				res.status(404)
+				res.json({"Message": "No thread found with id " + forumThreadID})
+			} else if(thread){
+				if(!messages){
+					res.status(404)
+					res.json({"Message": "No messages found in thread with id " + forumThreadID})
+				} else {
+					res.status(200)
+					res.json(messages)
+				}
+			}
+		})
+	} else {
+		// get all forumMessages from everybody
+		forumMessageService.getAllForumMessages((err, messages) => {
+			if(err){
+				res.status(500)
+				res.send({"Error": "An error occured while trying to get ForumMessages: " + err})
+			} else {
+				res.status(200)
+				res.send(messages)
+			}
+		})
+	}
 })
 
 // create new forumMessage
@@ -29,6 +52,31 @@ router.post('/', authenticationService.isAuthenticated, (req, res) => {
 		} else if(savedMessage){
 			res.status(201)
 			res.send(savedMessage)
+		}
+	})
+})
+
+// update forumMessage (only if logged in  user is the owner)
+router.put('/:messageID', authenticationService.isAuthenticated, (req, res) => {
+	const messageID = req.params.messageID
+	const askingUser = res.locals.user
+	forumMessageService.updateForumMessage(messageID, req.body, askingUser, (err, updatedMessage, ownerCorrect) => {
+		if(err){
+			res.status(500)
+			res.send({"Error": "An error occured while trying to update ForumMessage with id " + messageID + ": " + err})
+		} else {
+			if(updatedMessage){
+				if(ownerCorrect){
+					res.status(200)
+					res.send(updatedMessage)
+				} else {
+					res.status(401)
+					res.send({"Error": "you are not the owner of this message"})
+				}
+			} else {
+				res.status(404)
+				res.send({"Error": "Could not find ForumMessage with id " + messageID})
+			}
 		}
 	})
 })
@@ -73,30 +121,7 @@ myForumThreadsRouter.get('/', authenticationService.isAuthenticated, (req, res) 
 
 
 
-// update forumThread (only if logged in  user is the owner)
-router.put('/:threadID', authenticationService.isAuthenticated, (req, res) => {
-	const threadID = req.params.threadID
-	const askingUser = res.locals.user
-	forumThreadService.updateForumThread(threadID, req.body, askingUser, (err, updatedThread, ownerCorrect) => {
-		if(err){
-			res.status(500)
-			res.send({"Error": "An error occured while trying to update ForumThread with id " + threadID + ": " + err})
-		} else {
-			if(updatedThread){
-				if(ownerCorrect){
-					res.status(200)
-					res.send(updatedThread)
-				} else {
-					res.status(401)
-					res.send({"Error": "you are not the owner of this thread"})
-				}
-			} else {
-				res.status(404)
-				res.send({"Error": "Could not find ForumThread with id " + threadID})
-			}
-		}
-	})
-})
+
 
 // delete forumThread (only if logged in  user is the owner)
 router.delete('/:threadID', authenticationService.isAuthenticated, (req, res) => {

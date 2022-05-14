@@ -1,5 +1,6 @@
 const ForumMessage = require('./ForumMessageModel')
 const forumThreadService = require('../forumThread/ForumThreadService')
+const res = require('express/lib/response')
 
 // get all ForumMessages from database
 function getAllForumMessages(callback){
@@ -10,6 +11,43 @@ function getAllForumMessages(callback){
 			callback(null, messages)
 		}
 	})
+}
+
+// get single ForumMessage by its id
+function getForumMessageByID(messageID, callback){
+	ForumMessage.findById(messageID, (err, message) => {
+		if(err){
+			callback(err)
+		} else if(!message){
+			callback(null, null)
+		} else if(message){
+			callback(null, message)
+		}
+	})
+}
+
+// get all forumMessages from one specific thread
+function getAllForumMessagesByThreadID(threadID, callback){
+	// check if thread even exists
+	forumThreadService.getForumThreadByID(threadID, (err, thread) => {
+		if(err){
+			callback("Error in getForumThreadByID(): " + err)
+		} else if(!thread){
+			callback(null, null, null)
+		} else if(thread){
+			// found thread, get messages
+			ForumMessage.find({forumThreadID: threadID}, (err, messages) => {
+				if(err){
+					callback(err)
+				} else if(!messages){
+					callback(null, thread, null)
+				} else if(messages){
+					callback(null, thread, messages)
+				}
+			})
+		}
+	})
+	
 }
 
 // save new ForumMessage to database
@@ -35,118 +73,54 @@ function saveForumMessage(authorID, reqBody, callback) {
 	})
 }
 
-module.exports = {
-	getAllForumMessages,
-	saveForumMessage
-}
-
-
-
-
-/**
- * 
- * 
- * const ForumThread = require('./ForumThreadModel')
-
-// get all forumThreads from database
-function getAllForumThreads(callback){
-	ForumThread.find((err, threads) => {
+// update ForumMessage in database
+function updateForumMessage(messageID, updateBody, askingUser, callback){
+	// get ForumMessage document from db
+	getForumMessageByID(messageID, (err, message) => {
 		if(err){
-			callback(err, null)
-		} else if(!threads){
-			callback(null, null)
-		} else if(threads){
-			callback(null, threads)
-		}
-	})
-}
-
-// get all forumThreads from one specific user
-function getAllForumThreadsByOwnerID(userID, callback){
-	ForumThread.find({ownerID: userID}, (err, threads) => {
-		if(err){
-			callback(err, null)
-		} else if(!threads){
-			callback(null, null)
-		} else if(threads){
-			callback(null, threads)
-		}
-	})
-}
-
-// get single ForumThread by its id
-function getForumThreadByID(threadID, callback){
-	ForumThread.findById(threadID, (err, thread) => {
-		if(err){
-			callback(err)
-		} else if(!thread){
-			callback(null, null)
-		} else if(thread){
-			callback(null, thread)
-		}
-	})
-}
-
-// save new ForumThread to database
-function saveForumThread(ownerID, reqBody, callback) {
-	const newThread = new ForumThread(reqBody)
-	newThread.ownerID = ownerID
-	newThread.save()
-	.then((savedThread) => {
-		callback(null, savedThread)
-	})
-	.catch((saveError) => {
-		callback(saveError)
-	})
-}
-
-// update ForumThread in database
-function updateForumThread(threadID, updateBody, askingUser, callback){
-	// get ForumThread document from db
-	getForumThreadByID(threadID, (err, thread) => {
-		if(err){
-			callback("Error in getForumThreadByID(): " + err)
-		} else if(!thread){
+			callback("Error in getForumMessageByID(): " + err)
+		} else if(!message){
 			callback(null, null, null)
-		} else if(thread){
-			// found thread, check if asking user is the owner or admin
-			if(askingUser.userID === thread.ownerID || askingUser.isAdministrator){
-				Object.assign(thread, updateBody)
+		} else if(message){
+			// found message, check if asking user is the owner or admin
+			if(askingUser.userID === message.authorID || askingUser.isAdministrator){
+				Object.assign(message, updateBody)
 
-				thread.save()
-				.then((savedThread) => {
-					callback(null, savedThread, true)
+				message.save()
+				.then((savedMessage) => {
+					callback(null, savedMessage, true)
 				})
 				.catch((saveError) => {
 					callback(saveError)
 				})
 			} else {
+				// message found, but no permission
 				callback(null, Object, false)
 			}
 		}
 	})
 }
 
-// delete ForumThread from database
-function deleteForumThread(threadID, askingUser, callback){
-	// get ForumThread document from db
-	getForumThreadByID(threadID, (err, thread) => {
+// delete ForumMessage from database
+function deleteForumMessage(messageID, askingUser, callback){
+	// get ForumMessage document from db
+	getForumMessageByID(messageID, (err, message) => {
 		if(err){
-			callback("Error in getForumThreadByID(): " + err)
-		} else if(!thread){
+			callback("Error in getForumMessageByID(): " + err)
+		} else if(!message){
 			callback(null, null, null)
-		} else if(thread){
-			// found thread, check if asking user is the owner or admin
-			if(askingUser.userID === thread.ownerID || askingUser.isAdministrator){
-				ForumThread.deleteOne({_id: threadID})
-				.then((deletedThread) => {
-					callback(null, deletedThread, true)
+		} else if(message){
+			// found message, check if asking user is the owner or admin
+			if(askingUser.userID === message.authorID || askingUser.isAdministrator){
+				ForumMessage.deleteOne({_id: messageID})
+				.then((deletedMessage) => {
+					callback(null, deletedMessage, true)
 				})
 				.catch((deleteError) => {
 					callback(deleteError)
 				})
 			} else {
-				// thread found, but no permission
+				// message found, but no permission
 				callback(null, Object, false)
 			}
 		}
@@ -154,11 +128,10 @@ function deleteForumThread(threadID, askingUser, callback){
 }
 
 module.exports = {
-	getAllForumThreads,
-	getAllForumThreadsByOwnerID,
-	getForumThreadByID,
-	saveForumThread,
-	updateForumThread,
-	deleteForumThread
+	getAllForumMessages,
+	getForumMessageByID,
+	getAllForumMessagesByThreadID,
+	saveForumMessage,
+	updateForumMessage,
+	deleteForumMessage
 }
- */
