@@ -1,4 +1,5 @@
 const ForumMessage = require('./ForumMessageModel')
+const forumThreadService = require('../forumThread/ForumThreadService')
 
 // get all ForumMessages from database
 function getAllForumMessages(callback){
@@ -13,14 +14,24 @@ function getAllForumMessages(callback){
 
 // save new ForumMessage to database
 function saveForumMessage(authorID, reqBody, callback) {
-	const newForumMessage = new ForumMessage(reqBody)
-	newForumMessage.authorID = authorID
-	newForumMessage.save()
-	.then((savedMessage) => {
-		callback(null, savedMessage)
-	})
-	.catch((saveError) => {
-		callback(saveError)
+	// search for forumThread
+	forumThreadService.getForumThreadByID(reqBody.forumThreadID, (err, thread) => {
+		if(err){
+			callback(err)
+		} else if (!thread){
+			callback(null, null)
+		} else if(thread){
+			// thread found, save message
+			const newForumMessage = new ForumMessage(reqBody)
+			newForumMessage.authorID = authorID
+			newForumMessage.save()
+			.then((savedMessage) => {
+				callback(null, savedMessage)
+			})
+			.catch((saveError) => {
+				callback(saveError)
+			})
+		}
 	})
 }
 

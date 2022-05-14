@@ -105,14 +105,14 @@ Authorization: {{adminToken}}
 Content-Type: application/json
 
 {
-    "forumDescription": "Das ist der neue Text"
+    "description": "Das ist der neue Text"
 }
 
 ### Auflisten der Foren des Administrators
-GET http://localhost:8080/forumThreads?ownerID=admin
+GET https://localhost/forumThreads?ownerID=admin
 
-### Foren für admin auflisten (es sollte 1 sein)
-GET http://localhost:8080/forumThreads?ownerID=manfred
+### Foren für manfred auflisten (es sollte keins sein)
+GET https://localhost/forumThreads?ownerID=manfred
 
 ###
 # @name createForumRequest
@@ -137,6 +137,35 @@ Authorization: {{adminToken}}
 
 ### Auflisten aller Forumnachrichten ohne Token
 https://localhost/forumMessages
+
+
+
+
+
+// Login mit Basic Authentication mit korrekten Credentials admin:123
+###
+# @name loginAdminCorrect
+GET https://localhost/authenticate
+Authorization: Basic YWRtaW46MTIz
+
+@adminToken = {{loginAdminCorrect.response.headers.Authorization}}
+
+
+// Lege ein ersten Forum an, der Administrator ist owner
+###
+# @name createForumRequest
+POST https://localhost/forumThreads
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "name": "Mein erstes Forum",
+    "description": "Das ist ein erstes Forum, das ich im Rahmen der Tests angelegt habe"
+}
+
+###
+@forumThreadID = {{createForumRequest.response.body._id}}
+
 
 ###
 # @name createForumMessageRequest

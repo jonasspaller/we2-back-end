@@ -23,6 +23,9 @@ router.post('/', authenticationService.isAuthenticated, (req, res) => {
 		if(err){
 			res.status(500)
 			res.send({"Error": "An error occured while trying to save ForumMessage: " + err})
+		} else if(!savedMessage){
+			res.status(404)
+			res.json({"Message": "Could not find ForumThread with id " + req.body.forumThreadID})
 		} else if(savedMessage){
 			res.status(201)
 			res.send(savedMessage)

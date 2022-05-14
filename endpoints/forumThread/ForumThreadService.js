@@ -1,4 +1,5 @@
 const ForumThread = require('./ForumThreadModel')
+const mongoose = require('mongoose')
 
 // get all forumThreads from database
 function getAllForumThreads(callback){
@@ -28,15 +29,20 @@ function getAllForumThreadsByOwnerID(userID, callback){
 
 // get single ForumThread by its id
 function getForumThreadByID(threadID, callback){
-	ForumThread.findById(threadID, (err, thread) => {
-		if(err){
-			callback(err)
-		} else if(!thread){
-			callback(null, null)
-		} else if(thread){
-			callback(null, thread)
-		}
-	})
+	if(mongoose.Types.ObjectId.isValid(threadID)){
+		ForumThread.findById(threadID, (err, thread) => {
+			if(err){
+				callback(err)
+			} else if(!thread){
+				callback(null, null)
+			} else if(thread){
+				callback(null, thread)
+			}
+		})
+	} else {
+		callback(null, null)
+	}
+	
 }
 
 // save new ForumThread to database
