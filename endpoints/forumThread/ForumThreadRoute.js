@@ -1,8 +1,9 @@
-var express = require('express')
-var router = express.Router()
-var myForumThreadsRouter = express.Router({mergeParams: true})
-var forumThreadService = require('./ForumThreadService')
-var authenticationService = require('../../utils/AuthenticationUtils')
+const express = require('express')
+const router = express.Router()
+const myForumThreadsRouter = express.Router({mergeParams: true})
+const forumThreadService = require('./ForumThreadService')
+const forumMessageService = require('../forumMessage/ForumMessageService')
+const authenticationService = require('../../utils/AuthenticationUtils')
 
 // set nested route for /forumThreads/myForumThreads
 router.use('/myForumThreads', myForumThreadsRouter)
@@ -55,6 +56,28 @@ router.get('/:threadID', (req, res) => {
 		} else {
 			res.status(200)
 			res.send(thread)
+		}
+	})
+})
+
+// read messages from single forumThread (via ForumMessageService)
+router.get('/:threadID/forumMessages', (req, res) => {
+	const threadID = req.params.threadID
+	forumMessageService.getAllForumMessagesByThreadID(threadID, (err, thread, messages) => {
+		if(err){
+			res.status(500)
+			res.json({"Error": "An error occured while trying to get messages from thread with id " + threadID + ": " + err})
+		} else if(!thread){
+			res.status(404)
+			res.json({"Message": "No thread found with id " + threadID})
+		} else if(thread){
+			if(!messages){
+				res.status(404)
+				res.json({"Message": "No messages found in thread with id " + threadID})
+			} else {
+				res.status(200)
+				res.json(messages)
+			}
 		}
 	})
 })
@@ -119,6 +142,16 @@ router.put('/:threadID', authenticationService.isAuthenticated, (req, res) => {
 router.delete('/:threadID', authenticationService.isAuthenticated, (req, res) => {
 	const threadID = req.params.threadID
 	const askingUser = res.locals.user
+
+	// first delete all messages from this thread
+	forumMessageService.cleanThread(threadID, (err) => {
+		if(err){
+			res.status(500)
+			res.json({"Error": "An error occured in cleanThread(): " + err})
+			return
+		}
+	})
+
 	forumThreadService.deleteForumThread(threadID, askingUser, (err, deletedThread, ownerCorrect) => {
 		if(err){
 			res.status(500)

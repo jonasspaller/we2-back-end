@@ -109,10 +109,10 @@ Content-Type: application/json
 }
 
 ### Auflisten der Foren des Administrators
-GET http://localhost:8080/forumThreads?ownerID=admin
+GET https://localhost/forumThreads?ownerID=admin
 
-### Foren für admin auflisten (es sollte 1 sein)
-GET http://localhost:8080/forumThreads?ownerID=manfred
+### Foren für manfred auflisten (es sollte 0 sein)
+GET https://localhost/forumThreads?ownerID=manfred
 
 ###
 # @name createForumRequest
