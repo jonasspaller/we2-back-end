@@ -11,10 +11,10 @@ router.get('/', (req, res) => {
 		forumMessageService.getAllForumMessagesByThreadID(forumThreadID, (err, thread, messages) => {
 			if(err){
 				res.status(500)
-				res.send({"Error": "An error occured while trying to get ForumMessages: " + err})
+				res.json({"Error": "An error occured while trying to get ForumMessages: " + err})
 			} else if(!thread){
-				res.status(404)
-				res.json({"Message": "No thread found with id " + forumThreadID})
+				res.status(400)
+				res.json({"Error": "No thread found with id " + forumThreadID})
 			} else if(thread){
 				if(!messages){
 					res.status(404)
@@ -30,10 +30,10 @@ router.get('/', (req, res) => {
 		forumMessageService.getAllForumMessages((err, messages) => {
 			if(err){
 				res.status(500)
-				res.send({"Error": "An error occured while trying to get ForumMessages: " + err})
+				res.json({"Error": "An error occured while trying to get ForumMessages: " + err})
 			} else {
 				res.status(200)
-				res.send(messages)
+				res.json(messages)
 			}
 		})
 	}
@@ -45,13 +45,13 @@ router.post('/', authenticationService.isAuthenticated, (req, res) => {
 	forumMessageService.saveForumMessage(authorID, req.body, (err, savedMessage) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to save ForumMessage: " + err})
+			res.json({"Error": "An error occured while trying to save ForumMessage: " + err})
 		} else if(!savedMessage){
-			res.status(404)
-			res.json({"Message": "Could not find ForumThread with id " + req.body.forumThreadID})
+			res.status(400)
+			res.json({"Error": "Could not find ForumThread with id " + req.body.forumThreadID})
 		} else if(savedMessage){
 			res.status(201)
-			res.send(savedMessage)
+			res.json(savedMessage)
 		}
 	})
 })
@@ -63,19 +63,19 @@ router.put('/:messageID', authenticationService.isAuthenticated, (req, res) => {
 	forumMessageService.updateForumMessage(messageID, req.body, askingUser, (err, updatedMessage, ownerCorrect) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to update ForumMessage with id " + messageID + ": " + err})
+			res.json({"Error": "An error occured while trying to update ForumMessage with id " + messageID + ": " + err})
 		} else {
 			if(updatedMessage){
 				if(ownerCorrect){
 					res.status(200)
-					res.send(updatedMessage)
+					res.json(updatedMessage)
 				} else {
 					res.status(401)
-					res.send({"Error": "you are not the owner of this message"})
+					res.json({"Error": "you are not the owner of this message"})
 				}
 			} else {
 				res.status(404)
-				res.send({"Error": "Could not find ForumMessage with id " + messageID})
+				res.json({"Error": "Could not find ForumMessage with id " + messageID})
 			}
 		}
 	})
@@ -88,7 +88,7 @@ router.delete('/:messageID', authenticationService.isAuthenticated, (req, res) =
 	forumMessageService.deleteForumMessage(messageID, askingUser, (err, deletedMessage, ownerCorrect) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to delete ForumMessage with id " + messageID + ": " + err})
+			res.json({"Error": "An error occured while trying to delete ForumMessage with id " + messageID + ": " + err})
 		} else {
 			if(deletedMessage){
 				if(ownerCorrect){
@@ -100,7 +100,7 @@ router.delete('/:messageID', authenticationService.isAuthenticated, (req, res) =
 				}
 			} else {
 				res.status(404)
-				res.send({"Error": "Could not find ForumMessage with id " + messageID})
+				res.json({"Error": "Could not find ForumMessage with id " + messageID})
 			}
 		}
 	})

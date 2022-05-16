@@ -17,13 +17,13 @@ router.get('/', (req, res) => {
 		forumThreadService.getAllForumThreadsByOwnerID(ownerID, (err, threads) => {
 			if(err){
 				res.status(500)
-				res.send({"Error": "An error occured while trying to get ForumThreads: " + err})
+				res.json({"Error": "An error occured while trying to get ForumThreads: " + err})
 			} else if(!threads){
 				res.status(404)
-				res.send({"Error": "Could not find ForumThreads"})
+				res.json({"Error": "Could not find ForumThreads"})
 			} else {
 				res.status(200)
-				res.send(threads)
+				res.json(threads)
 			}
 		})
 	} else {
@@ -31,13 +31,13 @@ router.get('/', (req, res) => {
 		forumThreadService.getAllForumThreads((err, threads) => {
 			if(err){
 				res.status(500)
-				res.send({"Error": "An error occured while trying to get ForumThreads: " + err})
+				res.json({"Error": "An error occured while trying to get ForumThreads: " + err})
 			} else if(!threads){
 				res.status(404)
-				res.send({"Error": "Could not find ForumThreads"})
+				res.json({"Error": "Could not find ForumThreads"})
 			} else {
 				res.status(200)
-				res.send(threads)
+				res.json(threads)
 			}
 		})
 	}
@@ -49,13 +49,13 @@ router.get('/:threadID', (req, res) => {
 	forumThreadService.getForumThreadByID(threadID, (err, thread) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to get ForumThread with id" + threadID + ": " + err})
+			res.json({"Error": "An error occured while trying to get ForumThread with id" + threadID + ": " + err})
 		} else if(!thread){
 			res.status(404)
-			res.send({"Error": "Could not find ForumThread with id " + threadID})
+			res.json({"Error": "Could not find ForumThread with id " + threadID})
 		} else {
 			res.status(200)
-			res.send(thread)
+			res.json(thread)
 		}
 	})
 })
@@ -68,8 +68,8 @@ router.get('/:threadID/forumMessages', (req, res) => {
 			res.status(500)
 			res.json({"Error": "An error occured while trying to get messages from thread with id " + threadID + ": " + err})
 		} else if(!thread){
-			res.status(404)
-			res.json({"Message": "No thread found with id " + threadID})
+			res.status(400)
+			res.json({"Error": "No thread found with id " + threadID})
 		} else if(thread){
 			if(!messages){
 				res.status(404)
@@ -88,13 +88,13 @@ myForumThreadsRouter.get('/', authenticationService.isAuthenticated, (req, res) 
 	forumThreadService.getAllForumThreadsByOwnerID(userID, (err, threads) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to get ForumThreads: " + err})
+			res.json({"Error": "An error occured while trying to get ForumThreads: " + err})
 		} else if(!threads){
 			res.status(404)
-			res.send({"Error": "Could not find ForumThreads"})
+			res.json({"Error": "Could not find ForumThreads"})
 		} else {
 			res.status(200)
-			res.send(threads)
+			res.json(threads)
 		}
 	})
 })
@@ -105,10 +105,10 @@ router.post('/', authenticationService.isAuthenticated, (req, res) => {
 	forumThreadService.saveForumThread(ownerID, req.body, (err, savedThread) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to save ForumThread: " + err})
+			res.json({"Error": "An error occured while trying to save ForumThread: " + err})
 		} else if(savedThread){
 			res.status(201)
-			res.send(savedThread)
+			res.json(savedThread)
 		}
 	})
 })
@@ -120,19 +120,19 @@ router.put('/:threadID', authenticationService.isAuthenticated, (req, res) => {
 	forumThreadService.updateForumThread(threadID, req.body, askingUser, (err, updatedThread, ownerCorrect) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to update ForumThread with id " + threadID + ": " + err})
+			res.json({"Error": "An error occured while trying to update ForumThread with id " + threadID + ": " + err})
 		} else {
 			if(updatedThread){
 				if(ownerCorrect){
 					res.status(200)
-					res.send(updatedThread)
+					res.json(updatedThread)
 				} else {
 					res.status(401)
-					res.send({"Error": "you are not the owner of this thread"})
+					res.json({"Error": "you are not the owner of this thread"})
 				}
 			} else {
 				res.status(404)
-				res.send({"Error": "Could not find ForumThread with id " + threadID})
+				res.json({"Error": "Could not find ForumThread with id " + threadID})
 			}
 		}
 	})
@@ -143,31 +143,22 @@ router.delete('/:threadID', authenticationService.isAuthenticated, (req, res) =>
 	const threadID = req.params.threadID
 	const askingUser = res.locals.user
 
-	// first delete all messages from this thread
-	forumMessageService.cleanThread(threadID, (err) => {
-		if(err){
-			res.status(500)
-			res.json({"Error": "An error occured in cleanThread(): " + err})
-			return
-		}
-	})
-
 	forumThreadService.deleteForumThread(threadID, askingUser, (err, deletedThread, ownerCorrect) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to delete ForumThread with id " + threadID + ": " + err})
+			res.json({"Error": "An error occured while trying to delete ForumThread with id " + threadID + ": " + err})
 		} else {
 			if(deletedThread){
 				if(ownerCorrect){
 					res.status(204)
-					res.send(deletedThread)
+					res.json(deletedThread)
 				} else {
 					res.status(401)
 					res.json({"Error": "you are not the owner of this thread"})
 				}
 			} else {
 				res.status(404)
-				res.send({"Error": "Could not find ForumThread with id " + threadID})
+				res.json({"Error": "Could not find ForumThread with id " + threadID})
 			}
 		}
 	})

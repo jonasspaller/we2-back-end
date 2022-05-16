@@ -126,23 +126,11 @@ function deleteForumMessage(messageID, askingUser, callback){
 	})
 }
 
-// delete every message from thread (helper function when deleting a thread)
-function cleanThread(threadID, callback){
-	ForumMessage.deleteMany({forumThreadID: threadID})
-	.then(() => {
-		callback(null)
-	})
-	.catch((deleteError) => {
-		callback(deleteError)
-	})
-}
-
 module.exports = {
 	getAllForumMessages,
 	getForumMessageByID,
 	getAllForumMessagesByThreadID,
 	saveForumMessage,
 	updateForumMessage,
-	deleteForumMessage,
-	cleanThread
+	deleteForumMessage
 }
