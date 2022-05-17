@@ -1,6 +1,6 @@
-var express = require('express')
-var router = express.Router()
-var userService = require("./UserService")
+const express = require('express')
+const router = express.Router()
+const userService = require("./UserService")
 
 // GET requests
 router.get('/', (req, res) => {

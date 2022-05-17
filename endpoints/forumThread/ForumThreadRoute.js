@@ -1,12 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const myForumThreadsRouter = express.Router({mergeParams: true})
 const forumThreadService = require('./ForumThreadService')
 const forumMessageService = require('../forumMessage/ForumMessageService')
 const authenticationService = require('../../utils/AuthenticationUtils')
-
-// set nested route for /forumThreads/myForumThreads
-router.use('/myForumThreads', myForumThreadsRouter)
 
 // read all forumThreads
 router.get('/', (req, res) => {
@@ -41,6 +37,23 @@ router.get('/', (req, res) => {
 			}
 		})
 	}
+})
+
+// read all forumThreads from logged in user (get userID from token)
+router.get('/myForumThreads', authenticationService.isAuthenticated, (req, res) => {
+	const userID = res.locals.user.userID
+	forumThreadService.getAllForumThreadsByOwnerID(userID, (err, threads) => {
+		if(err){
+			res.status(500)
+			res.json({"Error": "An error occured while trying to get ForumThreads: " + err})
+		} else if(!threads){
+			res.status(404)
+			res.json({"Error": "Could not find ForumThreads"})
+		} else {
+			res.status(200)
+			res.json(threads)
+		}
+	})
 })
 
 // read single forumThread
@@ -78,23 +91,6 @@ router.get('/:threadID/forumMessages', (req, res) => {
 				res.status(200)
 				res.json(messages)
 			}
-		}
-	})
-})
-
-// read all forumThreads from logged in user (get userID from token)
-myForumThreadsRouter.get('/', authenticationService.isAuthenticated, (req, res) => {
-	const userID = res.locals.user.userID
-	forumThreadService.getAllForumThreadsByOwnerID(userID, (err, threads) => {
-		if(err){
-			res.status(500)
-			res.json({"Error": "An error occured while trying to get ForumThreads: " + err})
-		} else if(!threads){
-			res.status(404)
-			res.json({"Error": "Could not find ForumThreads"})
-		} else {
-			res.status(200)
-			res.json(threads)
 		}
 	})
 })

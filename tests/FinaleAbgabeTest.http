@@ -77,7 +77,7 @@ Content-Type: application/json
 GET https://localhost/forumThreads
 
 ### Foren für admin auflisten (es sollte 1 sein)
-GET https://localhost/forumThreads
+GET https://localhost/forumThreads/myForumThreads
 Authorization: {{adminToken}}
 
 // Login mit Basic Authentication als manfred mit korrekten Credentials admin:123
@@ -89,7 +89,7 @@ Authorization: Basic manfred:asdf
 @manfredToken = {{loginManfredCorrect.response.headers.Authorization}}
 
 ### Auflisten aller ForumThreads von manfred
-GET https://localhost/forumThreads
+GET https://localhost/forumThreads/myForumThreads
 Authorization: {{manfredToken}}
 
 ### Forum mit einer bestimmten ID abrufen

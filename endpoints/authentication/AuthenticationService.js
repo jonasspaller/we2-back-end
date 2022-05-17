@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken')
 const config = require('config')
-var userService = require('../user/UserService')
+const userService = require('../user/UserService')
 
-var jwtKey = config.get('session.tokenKey')
-var jwtTimeOut = config.get('session.timeOut')
+const jwtKey = config.get('session.tokenKey')
+const jwtTimeOut = config.get('session.timeOut')
 
 // check if password of a user matches with given password
 function checkUserPassword(userObj, callback){

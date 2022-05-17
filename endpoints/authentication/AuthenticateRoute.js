@@ -1,6 +1,6 @@
-var express = require('express')
-var router = express.Router()
-var authenticationService = require('./AuthenticationService.js')
+const express = require('express')
+const router = express.Router()
+const authenticationService = require('./AuthenticationService.js')
 
 // GET requests
 router.get('/', (req, res) => {
