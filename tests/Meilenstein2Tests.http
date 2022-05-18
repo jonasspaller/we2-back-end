@@ -1,27 +1,16 @@
-// Re-test Meilenstein 1, es sollte der Standard-Admin in der Datenbank sein
-###
+### Re-test Meilenstein 1, es sollte der Standard-Admin in der Datenbank sein
 http://localhost:8080/publicUsers
 
-
-// Login mit Basic Authentication als admin mit korrekten Credentials admin:123
-###
+### Login mit Basic Authentication als admin mit korrekten Credentials admin:123
 # @name loginAdminCorrect
 GET http://localhost:8080/authenticate
 Authorization: Basic YWRtaW46MTIz
 
-// Login mit Basic Authentication als admin mit falschen Credentials
-###
-GET http://localhost:8080/authenticate
-Authorization: Basic admin:1234
-
 @adminToken = {{loginAdminCorrect.response.headers.Authorization}}
 
-### Auflisten aller Nutzer ohne Token
-http://localhost:8080/users
-
-### Auflisten aller Nutzer mit Token von admin
-http://localhost:8080/users
-Authorization: {{adminToken}}
+### Login mit Basic Authentication als admin mit falschen Credentials
+GET http://localhost:8080/authenticate
+Authorization: Basic admin:1234
 
 ### Lege neuen user manfred an
 POST http://localhost:8080/users
@@ -34,28 +23,46 @@ Content-Type: application/json
     "password": "asdf"
 }
 
+### Abrufen des angelegten Users ohne Token
+GET http://localhost:8080/users/manfred
+
 ### Abrufen des angelegten Users mit dem Admin-Token
 GET http://localhost:8080/users/manfred
 Authorization: {{adminToken}}
 
-// Login mit Basic Authentication als manfred mit korrekten Credentials admin:123
-###
+### Login mit Basic Authentication als manfred mit korrekten Credentials manfred:asdf
 # @name loginManfredCorrect
 GET http://localhost:8080/authenticate
-Authorization: Basic manfred:asdf
+Authorization: Basic bWFuZnJlZDphc2Rm
 
 @manfredToken = {{loginManfredCorrect.response.headers.Authorization}}
 
+### Auflisten aller Nutzer ohne Token
+http://localhost:8080/users
+
+### Auflisten aller Nutzer mit Token von admin
+http://localhost:8080/users
+Authorization: {{adminToken}}
+
 ### Auflisten aller Nutzer mit Token von manfred
-GET http://localhost:8080/users
+http://localhost:8080/users
 Authorization: {{manfredToken}}
+
+
+
+
+
+////////////////////////// ForumThreads
+
+
+
+
 
 ### Auflisten aller Foren ohne Token
 GET http://localhost:8080/forumThreads
 
-// Lege ein ersten Forum an, der Administrator ist owner
-###
-# @name createForumRequest
+### Lege ein erstes Forum an, der Administrator ist owner
+# @name createFirstForumRequest
 POST http://localhost:8080/forumThreads
 Authorization: {{adminToken}}
 Content-Type: application/json
@@ -66,17 +73,47 @@ Content-Type: application/json
 }
 
 ###
-@forumThreadID = {{createForumRequest.response.body._id}}
+@firstForumThreadID = {{createFirstForumRequest.response.body._id}}
 
-### Auflisten aller Foren ohne Token, nun sollte es ein Forum geben
+### Lege ein zweites Forum an, der Administrator ist owner
+# @name createSecondForumRequest
+POST http://localhost:8080/forumThreads
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "name": "Mein zweites Forum",
+    "description": "Das ist ein zweites Forum, das ich im Rahmen der Tests angelegt habe"
+}
+
+###
+@secondForumThreadID = {{createSecondForumRequest.response.body._id}}
+
+### Lege ein drittes Forum an, Manfred ist owner
+# @name createThirdForumRequest
+POST http://localhost:8080/forumThreads
+Authorization: {{manfredToken}}
+Content-Type: application/json
+
+{
+    "name": "Mein drittes Forum",
+    "description": "Das ist ein drittes Forum, welches Manfred gehoert."
+}
+
+###
+@thirdForumThreadID = {{createThirdForumRequest.response.body._id}}
+
+### Auflisten aller Foren ohne Token, nun sollte es drei Foren geben
 http://localhost:8080/forumThreads
 
-### Abrufen von dem angelegten Forum-Thread
-http://localhost:8080/forumThreads/{{forumThreadID}}
+### Abrufen von dem ersten angelegten Forum-Thread
+http://localhost:8080/forumThreads/{{firstForumThreadID}}
 
+### Abrufen von dem zweiten angelegten Forum-Thread
+http://localhost:8080/forumThreads/{{secondForumThreadID}}
 
-### Ändere die forumDescription in dem existierenden Forum
-PUT http://localhost:8080/forumThreads/{{forumThreadID}}
+### Ändere die forumDescription in dem ersten Forum als admin
+PUT http://localhost:8080/forumThreads/{{firstForumThreadID}}
 Authorization: {{adminToken}}
 Content-Type: application/json
 
@@ -84,16 +121,41 @@ Content-Type: application/json
     "description": "Das ist der neue Text, warum auch nicht."
 }
 
+### Ändere die forumDescription in dem zweiten Forum als manfred
+PUT http://localhost:8080/forumThreads/{{secondForumThreadID}}
+Authorization: {{manfredToken}}
+Content-Type: application/json
+
+{
+    "description": "Das sollte nicht funktionieren."
+}
+
+### Ändere die forumDescription in dem dritten Forum als admin (manfred ist owner)
+PUT http://localhost:8080/forumThreads/{{thirdForumThreadID}}
+Authorization: {{adminToken}}
+Content-Type: application/json
+
+{
+    "description": "Der Admin hat das hier geändert"
+}
+
 ### Auflisten der Foren des aktuellen users
 GET http://localhost:8080/forumThreads/myForumThreads
 Authorization: {{adminToken}}
 
-### Auflisten der Foren einen bestimmten user
+### Auflisten der Foren eines bestimmten user
 GET http://localhost:8080/forumThreads?ownerID=manfred
 
+### Lösche den ersten angelegten Forum-Thread mit richtigem Token
+DELETE http://localhost:8080/forumThreads/{{firstForumThreadID}}
+Authorization: {{adminToken}}
 
-### Lösche den angelegten Forum-Thread
-DELETE http://localhost:8080/forumThreads/{{forumThreadID}}
+### Lösche den zweiten angelegten Forum-Thread mit falschem Token
+DELETE http://localhost:8080/forumThreads/{{secondForumThreadID}}
+Authorization: {{manfredToken}}
+
+### Lösche den dritten angelegten Forum-Thread mit admin Token (manfred ist owner)
+DELETE http://localhost:8080/forumThreads/{{thirdForumThreadID}}
 Authorization: {{adminToken}}
 
 ### Lösche den User manfred

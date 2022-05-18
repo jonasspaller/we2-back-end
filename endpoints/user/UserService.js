@@ -92,10 +92,32 @@ function deleteUser(username, callback){
 	})
 }
 
+// check for default admin
+function checkDefaultAdmin(){
+	// save default admin
+	const data = {
+		userID: "admin",
+		userName: "Admin",
+		password: "123",
+		isAdministrator: true
+	}
+
+	saveUser(data.userID, data, (err, result) => {
+		if(!result){
+			console.log("checkDefaultAdmin(): admin already exists")
+		} else if(result){
+			console.log("checkDefaultAdmin(): created default admin: " + result)
+		} else if(err){
+			console.log("checkDefaultAdmin(): Error: " + err, null)
+		}
+	})
+}
+
 module.exports = {
 	getUsers,
 	saveUser,
 	getUserByID,
 	updateUser,
-	deleteUser
+	deleteUser,
+	checkDefaultAdmin
 }
