@@ -124,6 +124,9 @@ GET https://localhost/forumMessages
 ### get all messages from first thread (3 expected)
 GET https://localhost/forumMessages?forumThreadID={{firstThreadID}}
 
+### get specifically the first message from the first thread via messageID
+GET https://localhost/forumMessages/{{firstThreadFirstMessageID}}
+
 ### get all messages from second thread via downstream route
 GET https://localhost/forumThreads/{{secondThreadID}}/forumMessages
 

@@ -39,6 +39,23 @@ router.get('/', (req, res) => {
 	}
 })
 
+// get single message via messageID
+router.get('/:forumMessageID', (req, res) => {
+	const forumMessageID = req.params.forumMessageID
+	forumMessageService.getForumMessageByID(forumMessageID, (err, message) => {
+		if(err){
+			res.status(500)
+			res.json({"Error": "An error occured while trying to get ForumMessage: " + err})
+		} else if(!message){
+			res.status(404)
+			res.json({"Error": "Could not find ForumMessage with id " + forumMessageID})
+		} else if(message){
+			res.status(200)
+			res.json(message)
+		}
+	})
+})
+
 // create new forumMessage
 router.post('/', authenticationService.isAuthenticated, (req, res) => {
 	const authorID = res.locals.user.userID
