@@ -29,6 +29,7 @@ router.get('/', (req, res) => {
 						res.status(500)
 						res.json({"Error": "could not create token"})
 					} else if(token){
+						res.header("Access-Control-Expose-Headers", "Authorization")
 						res.header("Authorization", "Bearer " + token)
 						res.json({"Message": "token created successfully"})
 					}

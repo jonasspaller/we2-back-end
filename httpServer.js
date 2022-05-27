@@ -3,12 +3,14 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const port = 443
+const cors = require("cors");
+app.use(cors());
 app.use(bodyParser.json())
 
 // SSL certificates
 const fs = require('fs')
-const key = fs.readFileSync('./certificates/key.pem')
-const cert = fs.readFileSync('./certificates/cert.pem')
+const key = fs.readFileSync('./certificates/localhost.key')
+const cert = fs.readFileSync('./certificates/localhost.crt')
 
 const https = require('https')
 const server = https.createServer({
