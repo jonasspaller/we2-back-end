@@ -1,10 +1,10 @@
 // Rufe alle User ab. Zu Beginn sollten keine User in der Datenbank sein. 
 ###
-GET http://localhost:8080/publicUsers
+GET https://localhost/publicUsers
 
 // Lege ersten User an, der Administrator ist
 ###
-POST http://localhost:8080/publicUsers
+POST https://localhost/publicUsers
 Content-Type: application/json
 
 {
@@ -16,11 +16,11 @@ Content-Type: application/json
 
 // Rufe den User mit UserID admin ab. 
 ###
-GET http://localhost:8080/publicUsers/admin
+GET https://localhost/publicUsers/admin
 
 // Lege zweiten User an. Prüfe UserID und UserName, ob die Angaben korrekt sind.
 ###
-POST http://localhost:8080/publicUsers
+POST https://localhost/publicUsers
 Content-Type: application/json
 
 {
@@ -31,7 +31,7 @@ Content-Type: application/json
 
 // Ändere beim zweiten User den User-Name. Zur Selektion des Users verwende die userID.
 ###
-PUT http://localhost:8080/publicUsers/manfred
+PUT https://localhost/publicUsers/manfred
 Content-Type: application/json
 
 {
@@ -40,8 +40,8 @@ Content-Type: application/json
 
 // Rufe alle User ab. Es sollten 2 User zurückgegeben werden.
 ###
-GET http://localhost:8080/publicUsers
+GET https://localhost/publicUsers
 
 // Lösche den User mit der User-ID manfred
 ###
-DELETE  http://localhost:8080/publicUsers/manfred
+DELETE  https://localhost/publicUsers/manfred

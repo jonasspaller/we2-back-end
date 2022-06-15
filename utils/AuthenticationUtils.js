@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const config = require('config')
 
-var jwtKey = config.get('session.tokenKey')
+const jwtKey = config.get('session.tokenKey')
 
 // check authorization middleware
 function isAuthenticated(req, res, next){
