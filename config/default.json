@@ -1,7 +1,7 @@
 {
 	"session": {
 		"tokenKey": "suchABeautifulKey",
-		"timeOut": 300
+		"timeOut": 30000
 	},
 	"db": {
 		"dbConfigOptions": {
