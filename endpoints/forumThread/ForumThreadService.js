@@ -1,4 +1,6 @@
 const ForumThread = require('./ForumThreadModel')
+const mongoose = require('mongoose')
+const forumMessageUtils = require('../../utils/ForumMessageUtils')
 
 // get all forumThreads from database
 function getAllForumThreads(callback){
@@ -28,15 +30,19 @@ function getAllForumThreadsByOwnerID(userID, callback){
 
 // get single ForumThread by its id
 function getForumThreadByID(threadID, callback){
-	ForumThread.findById(threadID, (err, thread) => {
-		if(err){
-			callback(err)
-		} else if(!thread){
-			callback(null, null)
-		} else if(thread){
-			callback(null, thread)
-		}
-	})
+	if(mongoose.Types.ObjectId.isValid(threadID)){
+		ForumThread.findById(threadID, (err, thread) => {
+			if(err){
+				callback(err)
+			} else if(!thread){
+				callback(null, null)
+			} else if(thread){
+				callback(null, thread)
+			}
+		})
+	} else {
+		callback(null, null)
+	}
 }
 
 // save new ForumThread to database
@@ -90,6 +96,14 @@ function deleteForumThread(threadID, askingUser, callback){
 		} else if(thread){
 			// found thread, check if asking user is the owner or admin
 			if(askingUser.userID === thread.ownerID || askingUser.isAdministrator){
+				// first delete all messages from this thread
+				forumMessageUtils.deleteAllMessagesFromThread(threadID, (err) => {
+					if(err){
+						callback("Error in forumMessageUtils.deleteAllMessagesFromThread: " + err)
+						return
+					}
+				})
+
 				ForumThread.deleteOne({_id: threadID})
 				.then((deletedThread) => {
 					callback(null, deletedThread, true)

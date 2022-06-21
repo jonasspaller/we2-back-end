@@ -1,19 +1,19 @@
-var express = require('express')
-var router = express.Router()
-var userService = require("./UserService")
+const express = require('express')
+const router = express.Router()
+const userService = require("./UserService")
 
 // GET requests
 router.get('/', (req, res) => {
 	userService.getUsers((err, result) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to get users: " + err})
+			res.json({"Error": "An error occured while trying to get users: " + err})
 		} else if(!result){
 			res.status(404)
-			res.send({"Error": "Could not find users"})
+			res.json({"Error": "Could not find users"})
 		} else {
 			res.status(200)
-			res.send(result)
+			res.json(result)
 		}
 	})
 })
@@ -23,13 +23,13 @@ router.get('/:username', (req, res) => {
 	userService.getUserByID(username, (err, result) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to get user " + username + ": " + err})
+			res.json({"Error": "An error occured while trying to get user " + username + ": " + err})
 		} else if(!result){
 			res.status(404)
-			res.send({"Error": "Could not find user " + username})
+			res.json({"Error": "Could not find user " + username})
 		} else {
 			res.status(200)
-			res.send(result)
+			res.json(result)
 		}
 	})
 })
@@ -39,18 +39,18 @@ router.post('/', (req, res) => {
 	let newUserID = req.body.userID
 	if(newUserID == undefined || newUserID == null){
 		res.status(400)
-		res.send({"Error": "cannot set a new user without userID"})
+		res.json({"Error": "cannot set a new user without userID"})
 	} else {
 		userService.saveUser(newUserID, req.body, (err, result) => {
 			if(err){
 				res.status(500)
-				res.send({"Error": "An error occured while trying to save user " + newUserID + ": " + err})
+				res.json({"Error": "An error occured while trying to save user " + newUserID + ": " + err})
 			} else if(!result){
 				res.status(400)
-				res.send({"Error": "User " + newUserID + " already exists"})
+				res.json({"Error": "User " + newUserID + " already exists"})
 			} else {
 				res.status(201)
-				res.send(result)
+				res.json(result)
 			}
 		})
 	}
@@ -62,13 +62,13 @@ router.put('/:username', (req, res) => {
 	userService.updateUser(username, req.body, (err, result) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to update " + username + ": " + err})
+			res.json({"Error": "An error occured while trying to update " + username + ": " + err})
 		} else if(!result){
 			res.status(404)
-			res.send({"Error": "Could not find user " + username})
+			res.json({"Error": "Could not find user " + username})
 		} else {
 			res.status(200)
-			res.send(result)
+			res.json(result)
 		}
 	})
 })
@@ -79,13 +79,13 @@ router.delete('/:username', (req, res) => {
 	userService.deleteUser(username, (err, result) => {
 		if(err){
 			res.status(500)
-			res.send({"Error": "An error occured while trying to delete " + username + ": " + err})
+			res.json({"Error": "An error occured while trying to delete " + username + ": " + err})
 		} else if(!result){
 			res.status(404)
-			res.send({"Error": "Could not find user " + username})
+			res.json({"Error": "Could not find user " + username})
 		} else {
 			res.status(204)
-			res.send(result)
+			res.json(result)
 		}
 	})
 })
